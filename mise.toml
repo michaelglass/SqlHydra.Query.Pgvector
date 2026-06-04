@@ -1,0 +1,36 @@
+[tasks.build]
+description = "Build the solution"
+run = "dotnet build SqlHydra.Query.Pgvector.slnx"
+
+[tasks.test]
+description = "Run tests"
+run = "dotnet test SqlHydra.Query.Pgvector.slnx"
+
+[tasks.check]
+description = "Run all checks with auto-fix"
+depends = ["format", "lint", "build", "test"]
+
+[tasks.ci]
+description = "Run all CI checks (no auto-fix)"
+run = [
+  "dotnet tool restore",
+  "dotnet fantomas --check src/ tests/ examples/",
+  "dotnet build SqlHydra.Query.Pgvector.slnx",
+  "dotnet test SqlHydra.Query.Pgvector.slnx",
+]
+
+[tasks.format]
+description = "Format with Fantomas"
+run = "dotnet fantomas src/ tests/ examples/"
+
+[tasks.lint]
+description = "Run FSharpLint"
+run = "dotnet fsharplint lint SqlHydra.Query.Pgvector.slnx"
+
+[tasks.docs]
+description = "Generate API documentation"
+run = "dotnet fsdocs build --parameters root /SqlHydra.Query.Pgvector/"
+
+[tasks.pack]
+description = "Create NuGet packages"
+run = "dotnet pack src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj -c Release -o artifacts/"

@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>5</WarningLevel>
+    <WarnOn>3390;1104;0020;0044;0025;3391;0067;0021</WarnOn>
+    <NoWarn>$(NoWarn);NU1605;MSB3277;NETSDK1188;FS1182</NoWarn>
+    <!-- FS1182: the sqlFn stub parameters (cosine_distance etc.) are intentional pattern
+         markers for the visitor — they exist so users can pass values; the visitor matches
+         the call-site shape rather than evaluating the body. -->
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>SqlHydra.Query.Pgvector</PackageId>
+    <Version>0.1.0-alpha.1</Version>
+    <Authors>Michael Glass</Authors>
+    <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators, plus a code-generation type mapping for the PostgreSQL `vector` column type.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
+    <PackageTags>F# fsharp sql sqlhydra pgvector vector similarity postgresql</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="PgvectorExtensions.fs" />
+    <Compile Include="TypeMapping.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Requires the SqlHydra build that ships the runtime extension seam:
+         the `SqlHydraInfixOperator` assembly attribute + `InfixOperators` registry +
+         `sqlFn` + the `OrderByRaw` IR node. These land via the postgres-fixes-v4 PR
+         (https://github.com/JordanMarr/SqlHydra). Bump these to the first released
+         version that contains that seam before publishing this package. -->
+    <PackageReference Include="SqlHydra.Query" Version="4.1.0-*" />
+    <PackageReference Include="SqlHydra.Domain" Version="4.1.0-*" />
+  </ItemGroup>
+</Project>
