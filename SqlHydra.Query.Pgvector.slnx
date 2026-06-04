@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SqlHydra.Query.Pgvector.Tests/SqlHydra.Query.Pgvector.Tests.fsproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/ExampleApp/ExampleApp.fsproj" />
+  </Folder>
+</Solution>

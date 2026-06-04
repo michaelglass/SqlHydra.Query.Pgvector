@@ -1,0 +1,19 @@
+name: Release
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  release:
+    uses: michaelglass/MichaelsWackyFsPackageTools/.github/workflows/michaels-wacky-release.yml@main
+    with:
+      package-name: SqlHydra.Query.Pgvector
+      tag-prefix: v
+      fsproj-path: src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj
+    permissions:
+      contents: write
+      id-token: write

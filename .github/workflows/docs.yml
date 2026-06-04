@@ -1,0 +1,24 @@
+name: Deploy Docs
+on:
+  push:
+    tags: ['v*']
+
+concurrency:
+  group: docs-${{ github.sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  docs:
+    if: "!contains(github.ref, 'alpha') && !contains(github.ref, 'beta') && !contains(github.ref, 'rc')"
+    uses: michaelglass/MichaelsWackyFsPackageTools/.github/workflows/michaels-wacky-docs.yml@main
+    with:
+      fsdocs-parameters: "--parameters root /SqlHydra.Query.Pgvector/"
+    permissions:
+      contents: read
+      pages: write
+      id-token: write

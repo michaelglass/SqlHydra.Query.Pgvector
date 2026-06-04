@@ -1,0 +1,23 @@
+name: CI
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    uses: michaelglass/MichaelsWackyFsPackageTools/.github/workflows/michaels-wacky-build.yml@main
+    with:
+      solution: SqlHydra.Query.Pgvector.slnx
+      fantomas-paths: "src/ tests/ examples/"
+      has-examples: true
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write

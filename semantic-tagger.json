@@ -1,0 +1,9 @@
+{
+  "packages": [
+    {
+      "name": "SqlHydra.Query.Pgvector",
+      "fsproj": "src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj",
+      "tagPrefix": "v"
+    }
+  ]
+}
