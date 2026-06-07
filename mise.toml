@@ -1,3 +1,6 @@
+[tools]
+dotnet = "10"
+
 [tasks.build]
 description = "Build the solution"
 run = "dotnet build SqlHydra.Query.Pgvector.slnx"
