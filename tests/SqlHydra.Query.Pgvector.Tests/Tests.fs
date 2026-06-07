@@ -126,3 +126,15 @@ let ``orderByInnerProductDistance binds vector as a parameter`` () =
     compiled.Parameters.Length =! 1
     let (_, value) = compiled.Parameters.[0]
     value =! (box vector)
+
+[<Fact>]
+let ``orderByCosineDistance rejects a non-column selector`` () =
+    // A distance expression (not a simple column) can't be resolved to a qualified
+    // column, so the orderBy op must fail loudly rather than emit broken SQL.
+    raises<exn>
+        <@
+            select {
+                for p in product do
+                    orderByCosineDistance (cosine_distance (p.standardcost, p.listprice)) (box [| 0.1f |])
+            }
+        @>
