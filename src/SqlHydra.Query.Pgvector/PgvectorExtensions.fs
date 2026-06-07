@@ -28,22 +28,16 @@ type SelectBuilder<'Selected, 'Mapped> with
     member private this.OrderByVectorDistance
         (state: QuerySource<'T, SelectQueryIR>, propertySelector, operator: string, vector: obj)
         =
-        let result =
-            LinqExpressionVisitors.visitOrderByPropertySelector<'T, 'Prop> propertySelector
-
-        match result with
-        | LinqExpressionVisitors.OrderByColumn(tableAlias, p) ->
-            let fqCol = $"\"{tableAlias}\".\"{p.Name}\""
+        match tryGetOrderByColumn<'T, 'Prop> propertySelector with
+        | Some(tableAlias, colName) ->
+            let fqCol = $"\"{tableAlias}\".\"{colName}\""
 
             QuerySource<'T, SelectQueryIR>(
                 { state.Query with
                     OrderBy = state.Query.OrderBy @ [ OrderByRaw($"{fqCol} {operator} ?", [| vector |]) ] },
                 state.TableMappings
             )
-        | LinqExpressionVisitors.OrderByIgnored -> state
-        | LinqExpressionVisitors.OrderByExpression _ ->
-            failwith "pgvector distance ordering requires a column reference, not an expression"
-        | _ -> failwith "pgvector distance ordering requires a column reference, not an aggregate"
+        | None -> failwith "pgvector distance ordering requires a simple column reference"
 
     /// ORDER BY column <=> @vector (pgvector cosine distance, ascending — closest first).
     [<CustomOperation("orderByCosineDistance", MaintainsVariableSpace = true)>]

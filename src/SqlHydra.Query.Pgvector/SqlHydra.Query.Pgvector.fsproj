@@ -32,10 +32,9 @@
   <ItemGroup>
     <!-- Pinned to the michaelglass/SqlHydra fork (via paket.dependencies) until the runtime
          extension seam ships on NuGet: the `SqlHydraInfixOperator` assembly attribute +
-         `InfixOperators` registry + `sqlFn` + the `OrderByRaw` IR node (postgres-extension-v4
-         / postgres-features-v4 PRs against https://github.com/JordanMarr/SqlHydra). The fork
-         also declares `InternalsVisibleTo "SqlHydra.Query.Pgvector"`, which this package needs
-         to reach the internal `LinqExpressionVisitors`. Once those land on NuGet, flip these
+         `InfixOperators` registry + `sqlFn` + the `OrderByRaw` IR node + the public
+         `tryGetOrderByColumn` helper (postgres-extension-v4 / postgres-features-v4 PRs against
+         https://github.com/JordanMarr/SqlHydra). Once those land on NuGet, flip these
          back to `<PackageReference Include="SqlHydra.Query"/"SqlHydra.Domain" />`. -->
     <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Domain/SqlHydra.Domain.fsproj" />
     <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Query/SqlHydra.Query.fsproj" />
