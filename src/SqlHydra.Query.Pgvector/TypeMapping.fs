@@ -22,5 +22,9 @@ type PgvectorTypeMapping() =
                         { TypeMapping.ColumnTypeAlias = "vector"
                           TypeMapping.ClrType = "Pgvector.Vector"
                           TypeMapping.DbType = System.Data.DbType.Object
-                          TypeMapping.ProviderDbType = Some "Vector" }
+                          // Must be None: SqlHydra applies ProviderDbType via
+                          // Enum.Parse<NpgsqlDbType>, and NpgsqlDbType has no Vector member.
+                          // pgvector binds through the Pgvector.Npgsql plugin (UseVector()),
+                          // which infers the handler from the Pgvector.Vector value itself.
+                          TypeMapping.ProviderDbType = None }
                 | _ -> baseTryFind ctx
