@@ -7,17 +7,23 @@ distance operators for `select` projections and `ORDER BY`, plus a code-generati
 mapping for the PostgreSQL `vector` column type.
 <!-- sync:intro:end -->
 
-> **Status:** depends on a SqlHydra build that ships the runtime extension seam
-> (the `SqlHydraInfixOperator` assembly attribute, the `InfixOperators` registry, `sqlFn`,
-> and the `OrderByRaw` IR node). That seam lands via the `postgres-fixes-v4` PR against
-> [JordanMarr/SqlHydra](https://github.com/JordanMarr/SqlHydra). Until it's released, pin
-> `SqlHydra.Query` / `SqlHydra.Domain` to a local build. See the `<PackageReference>`
-> versions in `src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj`.
+> **Status: depends on the [michaelglass/SqlHydra fork](https://github.com/michaelglass/SqlHydra/tree/feature/postgres-extension-v4) until/unless the remaining pieces land upstream.** The build pins the fork via a Paket git dependency (see `paket.dependencies`); `SqlHydra.Query` needs the infix-operator extensibility seam and parameterized `OrderByRaw` from the [features](https://github.com/michaelglass/SqlHydra/tree/feature/postgres-features-v4) + [extension](https://github.com/michaelglass/SqlHydra/tree/feature/postgres-extension-v4) PRs (split from JordanMarr/SqlHydra#125; the first PR, JordanMarr/SqlHydra#129, is merged). Once those ship on NuGet this flips to a normal `PackageReference` and the package gets published.
 
 ## Installation
 
 ```bash
 dotnet add package SqlHydra.Query.Pgvector
+```
+
+## Building
+
+This repo pins `SqlHydra.Query` / `SqlHydra.Domain` to a fork commit via a Paket
+git dependency (see `paket.dependencies`), so restore the fork before building:
+
+```bash
+dotnet tool restore
+dotnet paket restore
+dotnet build SqlHydra.Query.Pgvector.slnx
 ```
 
 ## Query usage
