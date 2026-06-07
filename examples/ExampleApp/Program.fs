@@ -19,25 +19,67 @@ let documents = table<document>
 
 let emitter = PostgresEmitter() :> ISqlEmitter
 
-// SELECT cosine distance as a projected column.
-let distanceQuery =
+let sqlOf (query: SelectQuery) = (query.CompileWith emitter).Sql
+
+// --- Distance functions as projected columns -------------------------------
+
+let cosineSelect =
     select {
         for d in documents do
             select (cosine_distance (d.embedding, d.embedding))
     }
 
-printfn "distance SQL:\n%s\n" ((distanceQuery.CompileWith emitter).Sql)
+printfn "cosine_distance select SQL:\n%s\n" (sqlOf cosineSelect)
 
-// ORDER BY nearest-neighbour with the query vector bound as a parameter.
+let l2Select =
+    select {
+        for d in documents do
+            select (l2_distance (d.embedding, d.embedding))
+    }
+
+printfn "l2_distance select SQL:\n%s\n" (sqlOf l2Select)
+
+let innerProductSelect =
+    select {
+        for d in documents do
+            select (inner_product_distance (d.embedding, d.embedding))
+    }
+
+printfn "inner_product_distance select SQL:\n%s\n" (sqlOf innerProductSelect)
+
+// --- ORDER BY nearest-neighbour with the query vector bound as a parameter --
+
 let queryVector = box [| 0.1f; 0.2f; 0.3f |]
 
-let nearestQuery =
+let nearestCosine =
     select {
         for d in documents do
             orderByCosineDistance d.embedding queryVector
             take 10
     }
 
-let compiled = nearestQuery.CompileWith emitter
-printfn "nearest SQL:\n%s" compiled.Sql
-printfn "parameters: %d" compiled.Parameters.Length
+let compiledCosine = nearestCosine.CompileWith emitter
+printfn "orderByCosineDistance SQL:\n%s" compiledCosine.Sql
+printfn "  parameters: %d\n" compiledCosine.Parameters.Length
+
+let nearestL2 =
+    select {
+        for d in documents do
+            orderByL2Distance d.embedding queryVector
+            take 10
+    }
+
+let compiledL2 = nearestL2.CompileWith emitter
+printfn "orderByL2Distance SQL:\n%s" compiledL2.Sql
+printfn "  parameters: %d\n" compiledL2.Parameters.Length
+
+let nearestInnerProduct =
+    select {
+        for d in documents do
+            orderByInnerProductDistance d.embedding queryVector
+            take 10
+    }
+
+let compiledInnerProduct = nearestInnerProduct.CompileWith emitter
+printfn "orderByInnerProductDistance SQL:\n%s" compiledInnerProduct.Sql
+printfn "  parameters: %d" compiledInnerProduct.Parameters.Length

@@ -109,3 +109,20 @@ let ``orderByCosineDistance + nullsLast retains parameter binding`` () =
     compiled.Sql.Contains "NULLS LAST" =! true
     compiled.Sql.Contains "<=>" =! true
     compiled.Parameters.Length =! 1
+
+[<Fact>]
+let ``orderByInnerProductDistance binds vector as a parameter`` () =
+    let vector = [| 0.25f; 0.75f |]
+
+    let q =
+        select {
+            for p in product do
+                orderByInnerProductDistance p.standardcost (box vector)
+        }
+
+    let emitter = PostgresEmitter() :> ISqlEmitter
+    let compiled = q.CompileWith(emitter)
+    compiled.Sql.Contains "<#>" =! true
+    compiled.Parameters.Length =! 1
+    let (_, value) = compiled.Parameters.[0]
+    value =! (box vector)
