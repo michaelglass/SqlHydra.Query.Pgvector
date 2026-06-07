@@ -1,3 +1,9 @@
 {
-  "overrides": {}
+  "overrides": {
+    "PgvectorExtensions.fs": {
+      "line": 66.6,
+      "branch": 100.0,
+      "reason": "The uncovered lines are non-executable: the `PgvectorFn.*_distance` members are `sqlFn` marker stubs (the visitor matches the call-site shape and never invokes the body), and the `OrderByIgnored`/`failwith` arms of OrderByVectorDistance are defensive — the `[<ProjectionParameter>]` column selector always resolves to OrderByColumn, so they are unreachable through the public CE."
+    }
+  }
 }
