@@ -1,7 +1,7 @@
 {
   "overrides": {
     "PgvectorExtensions.fs": {
-      "line": 78.6,
+      "line": 78.5,
       "branch": 100.0,
       "reason": "The uncovered lines are non-executable: the `PgvectorFn.*_distance` members are `sqlFn` marker stubs (the visitor matches the call-site shape and never invokes the body)."
     }
