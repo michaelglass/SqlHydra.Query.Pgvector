@@ -30,12 +30,14 @@
     <Compile Include="TypeMapping.fs" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Requires the SqlHydra build that ships the runtime extension seam:
-         the `SqlHydraInfixOperator` assembly attribute + `InfixOperators` registry +
-         `sqlFn` + the `OrderByRaw` IR node. These land via the postgres-fixes-v4 PR
-         (https://github.com/JordanMarr/SqlHydra). Bump these to the first released
-         version that contains that seam before publishing this package. -->
-    <PackageReference Include="SqlHydra.Query" Version="4.1.0-*" />
-    <PackageReference Include="SqlHydra.Domain" Version="4.1.0-*" />
+    <!-- Pinned to the michaelglass/SqlHydra fork (via paket.dependencies) until the runtime
+         extension seam ships on NuGet: the `SqlHydraInfixOperator` assembly attribute +
+         `InfixOperators` registry + `sqlFn` + the `OrderByRaw` IR node (postgres-extension-v4
+         / postgres-features-v4 PRs against https://github.com/JordanMarr/SqlHydra). The fork
+         also declares `InternalsVisibleTo "SqlHydra.Query.Pgvector"`, which this package needs
+         to reach the internal `LinqExpressionVisitors`. Once those land on NuGet, flip these
+         back to `<PackageReference Include="SqlHydra.Query"/"SqlHydra.Domain" />`. -->
+    <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Domain/SqlHydra.Domain.fsproj" />
+    <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Query/SqlHydra.Query.fsproj" />
   </ItemGroup>
 </Project>
