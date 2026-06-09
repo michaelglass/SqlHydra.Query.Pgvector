@@ -16,3 +16,6 @@
   `ProviderDbType` is `None` on purpose: `NpgsqlDbType` has no `Vector` member, so binding
   goes through the `Pgvector.Npgsql` plugin (`UseVector()`), which infers the handler from the
   value itself.
+- docs: document building and testing in the README (`mise run build`/`test`/`ci`/`format`),
+  noting that the integration tests use Testcontainers and require a running Docker daemon
+  while the unit tests do not.

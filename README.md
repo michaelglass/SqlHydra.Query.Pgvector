@@ -73,6 +73,37 @@ The mapping sets `ProviderDbType = None` on purpose: SqlHydra applies `ProviderD
 the `Pgvector.Npgsql` plugin (`UseVector()`), which infers the handler from the
 `Pgvector.Vector` value itself.
 
+## Development
+
+Tasks are driven by [`mise`](https://mise.jdx.dev/) (see `mise.toml`); each also maps to a
+plain `dotnet` invocation.
+
+```bash
+mise run build    # build the solution
+mise run test     # run all tests (requires Docker — see below)
+mise run ci       # the full gate, no auto-fix (format-check + build + test)
+mise run format   # format with Fantomas
+```
+
+### Tests and the Docker requirement
+
+The test suite has two kinds of tests:
+
+- **Unit tests** — SQL-emission and type-mapping tests that run entirely in-process. **No Docker needed.**
+- **Integration tests** — tagged `[<Trait("Category", "Integration")>]`. They use
+  [Testcontainers](https://testcontainers.com/) to spin up a real `pgvector/pgvector:pg17`
+  PostgreSQL container per run, execute the compiled SQL, and assert on actual
+  distance / nearest-neighbour results. These require a running **Docker daemon** —
+  `mise run test` pulls and starts the container automatically.
+
+So `mise run test` (and `mise run ci`) needs Docker running. To run only the unit tests
+without Docker, filter the integration trait out:
+
+```bash
+dotnet test --solution SqlHydra.Query.Pgvector.slnx \
+    --filter-not-trait "Category=Integration"
+```
+
 ## License
 
 MIT
