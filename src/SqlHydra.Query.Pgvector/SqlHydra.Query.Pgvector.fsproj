@@ -14,7 +14,7 @@
     <PackageId>SqlHydra.Query.Pgvector</PackageId>
     <Version>0.1.0-alpha.1</Version>
     <Authors>Michael Glass</Authors>
-    <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators, plus a code-generation type mapping for the PostgreSQL `vector` column type.</Description>
+    <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators for `select` projections and `ORDER BY`. Runtime-only.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
     <PackageTags>F# fsharp sql sqlhydra pgvector vector similarity postgresql</PackageTags>
@@ -27,16 +27,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
-    <Compile Include="TypeMapping.fs" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Pinned to the michaelglass/SqlHydra fork (via paket.dependencies) until the runtime
-         extension seam ships on NuGet: the `SqlHydraInfixOperator` assembly attribute +
-         `InfixOperators` registry + `sqlFn` + the `OrderByRaw` IR node + the public
-         `tryGetOrderByColumn` helper (postgres-extension-v4 / postgres-features-v4 PRs against
-         https://github.com/JordanMarr/SqlHydra). Once those land on NuGet, flip these
-         back to `<PackageReference Include="SqlHydra.Query"/"SqlHydra.Domain" />`. -->
-    <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Domain/SqlHydra.Domain.fsproj" />
-    <ProjectReference Include="../../paket-files/github.com/michaelglass/sqlhydra/src/SqlHydra.Query/SqlHydra.Query.fsproj" />
+    <!-- Runtime-only: depends on the published extensibility seam in SqlHydra.Query >= 4.1.0-beta.1
+         (SqlHydraInfixOperator + InfixOperators + sqlFn + parameterized OrderByRaw + public tryGetOrderByColumn). -->
+    <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.1" />
   </ItemGroup>
 </Project>

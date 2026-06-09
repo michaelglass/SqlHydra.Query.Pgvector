@@ -7,7 +7,7 @@ run = "dotnet build SqlHydra.Query.Pgvector.slnx"
 
 [tasks.test]
 description = "Run tests"
-run = "dotnet test SqlHydra.Query.Pgvector.slnx"
+run = "dotnet test --solution SqlHydra.Query.Pgvector.slnx"
 
 [tasks.check]
 description = "Run all checks with auto-fix"
@@ -19,7 +19,7 @@ run = [
   "dotnet tool restore",
   "dotnet fantomas --check src/ tests/ examples/",
   "dotnet build SqlHydra.Query.Pgvector.slnx",
-  "dotnet test SqlHydra.Query.Pgvector.slnx",
+  "dotnet test --solution SqlHydra.Query.Pgvector.slnx",
 ]
 
 [tasks.format]

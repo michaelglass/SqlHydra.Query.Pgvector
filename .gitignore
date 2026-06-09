@@ -4,7 +4,3 @@ output/
 artifacts/
 coverage/
 .fsdocs/
-
-# Paket git dependencies (restored by `dotnet paket restore`); keep paket.lock tracked.
-paket-files/
-.paket/

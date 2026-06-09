@@ -8,9 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Distance operators** for `select` projections — `cosine_distance` (`<=>`), `l2_distance` (`<->`), `inner_product_distance` (`<#>`).
 - **`orderBy*Distance` CE operations** — `orderByCosineDistance` / `orderByL2Distance` / `orderByInnerProductDistance`, with the query vector bound as a parameter.
-- **A code-generation type mapping** (`PgvectorTypeMapping : IExtendTypeMapping`) so `dotnet sqlhydra` maps the PostgreSQL `vector` column type to `Pgvector.Vector`.
 
-It is a pure extension: it adds operators via SqlHydra.Query's public extensibility seam (the `SqlHydraInfixOperator` assembly attribute + `InfixOperators` registry, and the public `tryGetOrderByColumn` helper) — **no access to SqlHydra internals**.
+This is a **runtime-only** package: it adds operators via SqlHydra.Query's public extensibility seam (the `SqlHydraInfixOperator` assembly attribute + `InfixOperators` registry, and the public `tryGetOrderByColumn` helper) — **no access to SqlHydra internals**. It does not ship a code-generation type mapping; mapping the PostgreSQL `vector` column type to `Pgvector.Vector` during `dotnet sqlhydra` generation is a documented copy-paste `IExtendTypeMapping` snippet in the README (see "Dependency on SqlHydra" for why).
 
 ## Build & Development Commands
 
@@ -39,18 +38,19 @@ This repo is **colocated jj + git** (`jj git init --colocate`), like the other `
 
 ## Architecture
 
-Two source files in `src/SqlHydra.Query.Pgvector/`:
+One source file in `src/SqlHydra.Query.Pgvector/`:
 
-- **`PgvectorExtensions.fs`** — the runtime half. A `PgvectorFn` type whose `*_distance` members are `sqlFn` marker stubs (the visitor matches the call-site shape and emits the infix operator; the body is never invoked). Assembly-level `[<assembly: SqlHydraInfixOperator(...)>]` attributes register the three operators, auto-discovered on first query compile. A `SelectBuilder` type-extension adds the `orderBy*Distance` CE ops, which resolve the column via the public `tryGetOrderByColumn` helper and append an `OrderByRaw` fragment with the vector as a bound parameter.
-- **`TypeMapping.fs`** — the code-generation half. `PgvectorTypeMapping : IExtendTypeMapping` maps the `vector` provider type to `Pgvector.Vector`. **`ProviderDbType` must be `None`**: SqlHydra applies it via `Enum.Parse<NpgsqlDbType>`, and `NpgsqlDbType` has no `Vector` member — pgvector binds through the `Pgvector.Npgsql` plugin, which infers the handler from the `Pgvector.Vector` value itself.
+- **`PgvectorExtensions.fs`** — the whole runtime. A `PgvectorFn` type whose `*_distance` members are `sqlFn` marker stubs (the visitor matches the call-site shape and emits the infix operator; the body is never invoked). Assembly-level `[<assembly: SqlHydraInfixOperator(...)>]` attributes register the three operators, auto-discovered on first query compile. A `SelectBuilder` type-extension adds the `orderBy*Distance` CE ops, which resolve the column via the public `tryGetOrderByColumn` helper and append an `OrderByRaw` fragment with the vector as a bound parameter.
 
-Tests in `tests/SqlHydra.Query.Pgvector.Tests/` use xUnit v3 + Unquote: `Tests.fs` (operator/orderBy SQL emission), `TypeMappingTests.fs` (the `IExtendTypeMapping`), `Schema.fs` (a minimal hand-rolled table for `toSql`-based assertions).
+There is no shipped code-generation type mapping (see "Dependency on SqlHydra"); the `IExtendTypeMapping` for the `vector` column is a copy-paste snippet in the README instead.
+
+Tests in `tests/SqlHydra.Query.Pgvector.Tests/` use xUnit v3 + Unquote: `Tests.fs` (operator/orderBy SQL emission via `toSql`), `IntegrationTests.fs` (real Postgres + pgvector via Testcontainers — executes the compiled SQL against `pgvector/pgvector:pg17` and asserts actual distance/nearest-neighbour results), `Schema.fs` (a minimal hand-rolled table for `toSql`-based assertions).
 
 ## Dependency on SqlHydra
 
-The runtime operators consume **`SqlHydra.Query`** (the published NuGet package — `4.1.0-beta.1`+ contains the extensibility seam: `SqlHydraInfixOperator`, `InfixOperators`, parameterized `OrderByRaw`, and the public `tryGetOrderByColumn` helper).
+The package depends on a single PackageReference: **`SqlHydra.Query`** (the published NuGet package — `4.1.0-beta.1`+ contains the extensibility seam: `SqlHydraInfixOperator`, `InfixOperators`, parameterized `OrderByRaw`, and the public `tryGetOrderByColumn` helper). No Paket, no fork pin — a plain `dotnet build` works.
 
-`TypeMapping.fs` consumes the codegen types from **`SqlHydra.Domain`**, which is **not currently published as a standalone NuGet package** (it ships compiled into `SqlHydra.Cli`). See the package fsproj / README for how that dependency is currently satisfied; this is the one piece tracking an upstream gap.
+The code-generation type mapping is **documented, not shipped**. An `IExtendTypeMapping` for the `vector` column needs the codegen types from **`SqlHydra.Domain`**, which is **not currently published as a standalone NuGet package** (it ships compiled into `SqlHydra.Cli`). Shipping a type that depends on it would force consumers to obtain `SqlHydra.Domain` out of band, so instead the README carries a copy-paste snippet users drop into their own SqlHydra.Query project (which already references `SqlHydra.Domain`). This is the one piece tracking an upstream gap; once `SqlHydra.Domain` is published standalone we can ship the mapping as a real type again.
 
 ## Releasing
 

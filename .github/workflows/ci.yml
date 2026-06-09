@@ -16,7 +16,6 @@ jobs:
     with:
       solution: SqlHydra.Query.Pgvector.slnx
       fantomas-paths: "src/ tests/ examples/"
-      paket-restore: true
     permissions:
       contents: read
       checks: write

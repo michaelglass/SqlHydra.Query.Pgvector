@@ -17,7 +17,6 @@
   <ItemGroup>
     <Compile Include="Schema.fs" />
     <Compile Include="Tests.fs" />
-    <Compile Include="TypeMappingTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
