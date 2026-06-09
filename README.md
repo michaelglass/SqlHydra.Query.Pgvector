@@ -1,15 +1,25 @@
 # SqlHydra.Query.Pgvector
 
 <!-- sync:intro:start -->
-[pgvector](https://github.com/pgvector/pgvector) distance functions for
-[SqlHydra.Query](https://github.com/JordanMarr/SqlHydra) — cosine, L2, and inner-product
-distance operators for `select` projections and `ORDER BY`, plus a code-generation type
-mapping (`PgvectorTypeMapping`) that maps the PostgreSQL `vector` column type to
-`Pgvector.Vector` during `dotnet sqlhydra` generation. Register it in your generator TOML
-(see below).
+Vector similarity search for [SqlHydra.Query](https://github.com/JordanMarr/SqlHydra),
+powered by [pgvector](https://github.com/pgvector/pgvector).
+
+Write `select` and `ORDER BY` queries that compare embeddings by **cosine**, **L2
+(Euclidean)**, or **inner-product** distance — all in strongly-typed F#, with the native
+pgvector operators (`<=>`, `<->`, `<#>`) generated for you. It also teaches the SqlHydra
+code generator about `vector` columns so they come through as `Pgvector.Vector` in your
+generated types.
 <!-- sync:intro:end -->
 
-> **Status: depends on the published [`SqlHydra.Query`](https://www.nuget.org/packages/SqlHydra.Query) (≥ `4.1.0-beta.1`, currently a prerelease).** That release ships the runtime extensibility seam this package needs — the `SqlHydraInfixOperator` assembly attribute + `InfixOperators` registry, `sqlFn`, parameterized `OrderByRaw`, and the public `tryGetOrderByColumn` helper — and bundles the `SqlHydra.Domain` codegen types this package's `PgvectorTypeMapping` implements against. No fork or Paket pin: a plain `dotnet build` works.
+## Before you start
+
+You'll need:
+
+- A PostgreSQL database with the [pgvector](https://github.com/pgvector/pgvector)
+  extension enabled (`CREATE EXTENSION vector;`) and a table with a `vector` column.
+- [SqlHydra.Query](https://github.com/JordanMarr/SqlHydra) set up for that database. If
+  you're new to SqlHydra, start with its docs — this package just adds vector search on
+  top of the queries you already write.
 
 ## Installation
 
@@ -17,21 +27,24 @@ mapping (`PgvectorTypeMapping`) that maps the PostgreSQL `vector` column type to
 dotnet add package SqlHydra.Query.Pgvector
 ```
 
-## Query usage
+## Searching by similarity
+
+Open the package alongside `SqlHydra.Query`, then use the distance functions in a query.
+`queryVector` below is your search embedding — the `Pgvector.Vector` you want to find the
+nearest rows to.
 
 ```fsharp
 open SqlHydra.Query
 open SqlHydra.Query.Pgvector.PgvectorExtensions
 open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
 
-// Distance as a projected column — emits `embedding <=> @p0`:
+// Return each document together with how far it is from your query vector:
 select {
     for d in documents do
         select (cosine_distance (d.embedding, queryVector))
 }
 
-// Nearest-neighbour ordering — emits `ORDER BY "d"."embedding" <=> ?`,
-// with the query vector bound as a parameter:
+// Find the 10 closest documents (nearest-neighbour search):
 select {
     for d in documents do
         orderByCosineDistance d.embedding (box queryVector)
@@ -39,65 +52,54 @@ select {
 }
 ```
 
-| Function / operation | Operator | Meaning |
-|---|---|---|
-| `cosine_distance(a, b)` | `<=>` | cosine distance (select projection) |
-| `l2_distance(a, b)` | `<->` | L2 / Euclidean distance (select projection) |
-| `inner_product_distance(a, b)` | `<#>` | inner-product distance (select projection) |
-| `orderByCosineDistance col vec` | `<=>` | `ORDER BY col <=> @vec` (ascending — closest first) |
-| `orderByL2Distance col vec` | `<->` | `ORDER BY col <-> @vec` |
-| `orderByInnerProductDistance col vec` | `<#>` | `ORDER BY col <#> @vec` |
+That's it — no setup or registration call is required.
 
-The operators self-register the first time a query is compiled, via assembly-level
-`[<assembly: SqlHydraInfixOperator(...)>]` attributes — there is no `ensureRegistered()`
-startup call.
+### Available distance functions
 
-## Code generation — mapping the `vector` column
+Use these inside `select` to get a distance back as a column:
 
-This package **ships** a code-generation type mapping — `PgvectorTypeMapping`, in the
-`SqlHydra.Query.Pgvector` namespace — that maps the PostgreSQL `vector` column type to
-`Pgvector.Vector` during `dotnet sqlhydra` generation. You don't copy any code; just
-reference the package and register it in your generator TOML:
+| Function | Distance |
+|---|---|
+| `cosine_distance(a, b)` | Cosine |
+| `l2_distance(a, b)` | L2 / Euclidean |
+| `inner_product_distance(a, b)` | Inner product |
+
+Use these to order results from closest to farthest:
+
+| Operation | Distance |
+|---|---|
+| `orderByCosineDistance col vec` | Cosine |
+| `orderByL2Distance col vec` | L2 / Euclidean |
+| `orderByInnerProductDistance col vec` | Inner product |
+
+The query vector is always sent as a query parameter, so it's safe to pass user input.
+
+## Generating types for `vector` columns
+
+So that SqlHydra generates a `Pgvector.Vector` property for each `vector` column, add this
+package to the `[extensions]` section of your SqlHydra generator TOML:
 
 ```toml
 [extensions]
 type_mappings = ["SqlHydra.Query.Pgvector"]
 ```
 
-SqlHydra discovers the `IExtendTypeMapping` implementation in the referenced assembly
-automatically and composes it ahead of the built-in mappings, so a `vector` column then
-generates a `Pgvector.Vector` property.
+Re-run `dotnet sqlhydra` and your `vector` columns will come through as `Pgvector.Vector`.
 
-The mapping sets `ProviderDbType = None` on purpose: SqlHydra applies `ProviderDbType` via
-`Enum.Parse<NpgsqlDbType>`, and `NpgsqlDbType` has no `Vector` member. pgvector binds through
-the `Pgvector.Npgsql` plugin (`UseVector()`), which infers the handler from the
-`Pgvector.Vector` value itself.
+## Building this project
 
-## Development
-
-Tasks are driven by [`mise`](https://mise.jdx.dev/) (see `mise.toml`); each also maps to a
-plain `dotnet` invocation.
+Tasks are driven by [`mise`](https://mise.jdx.dev/):
 
 ```bash
 mise run build    # build the solution
-mise run test     # run all tests (requires Docker — see below)
-mise run ci       # the full gate, no auto-fix (format-check + build + test)
+mise run test     # run all tests (the integration tests need Docker)
+mise run ci       # the full gate: format check + build + test
 mise run format   # format with Fantomas
 ```
 
-### Tests and the Docker requirement
-
-The test suite has two kinds of tests:
-
-- **Unit tests** — SQL-emission and type-mapping tests that run entirely in-process. **No Docker needed.**
-- **Integration tests** — tagged `[<Trait("Category", "Integration")>]`. They use
-  [Testcontainers](https://testcontainers.com/) to spin up a real `pgvector/pgvector:pg17`
-  PostgreSQL container per run, execute the compiled SQL, and assert on actual
-  distance / nearest-neighbour results. These require a running **Docker daemon** —
-  `mise run test` pulls and starts the container automatically.
-
-So `mise run test` (and `mise run ci`) needs Docker running. To run only the unit tests
-without Docker, filter the integration trait out:
+The integration tests spin up a real PostgreSQL + pgvector container via
+[Testcontainers](https://testcontainers.com/), so they need a running Docker daemon. To
+run only the in-process unit tests without Docker:
 
 ```bash
 dotnet test --solution SqlHydra.Query.Pgvector.slnx \
