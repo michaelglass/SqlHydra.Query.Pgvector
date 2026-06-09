@@ -1,7 +1,9 @@
 name: Release
+
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -12,8 +14,27 @@ jobs:
     uses: michaelglass/MichaelsWackyFsPackageTools/.github/workflows/michaels-wacky-release.yml@main
     with:
       package-name: SqlHydra.Query.Pgvector
-      tag-prefix: v
       fsproj-path: src/SqlHydra.Query.Pgvector/SqlHydra.Query.Pgvector.fsproj
     permissions:
       contents: write
+
+  # NuGet Trusted Publishing requires nuget/login to run in the calling repo's
+  # workflow, not a reusable workflow from another repo. The OIDC token's
+  # job_workflow_ref must match the repo's own workflow file.
+  publish:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
       id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./artifacts
+      - name: Login to NuGet (Trusted Publishing)
+        id: nuget-login
+        uses: nuget/login@v1
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - name: Publish to NuGet
+        run: dotnet nuget push ./artifacts/*.nupkg --api-key ${{ steps.nuget-login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
