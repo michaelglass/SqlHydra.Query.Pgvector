@@ -8,7 +8,9 @@
 - feat: `orderByCosineDistance` / `orderByL2Distance` / `orderByInnerProductDistance` custom
   operations for nearest-neighbour `ORDER BY`, with the query vector bound as a real query
   parameter (parameterized `OrderByRaw`) rather than inlined.
-- feat: `PgvectorTypeMapping` (`IExtendTypeMapping`) for `dotnet sqlhydra` code generation —
-  maps the PostgreSQL `vector` column type to `Pgvector.Vector`. `ProviderDbType` is `None`
-  on purpose: `NpgsqlDbType` has no `Vector` member, so binding goes through the
-  `Pgvector.Npgsql` plugin (`UseVector()`), which infers the handler from the value itself.
+- docs: a copy-paste `IExtendTypeMapping` snippet (in the README) for mapping the PostgreSQL
+  `vector` column type to `Pgvector.Vector` during `dotnet sqlhydra` code generation. This is
+  documented rather than shipped because SqlHydra's codegen types (`SqlHydra.Domain`) are not
+  yet published as a standalone NuGet package. `ProviderDbType` is `None` on purpose:
+  `NpgsqlDbType` has no `Vector` member, so binding goes through the `Pgvector.Npgsql` plugin
+  (`UseVector()`), which infers the handler from the value itself.

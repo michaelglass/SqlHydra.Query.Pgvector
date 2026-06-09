@@ -7,7 +7,6 @@
     "fsdocs-tool": { "version": "21.0.0", "commands": ["fsdocs"] },
     "coverageratchet": { "version": "0.15.0-alpha.6", "commands": ["coverageratchet"] },
     "syncdocs": { "version": "0.13.0-alpha.2", "commands": ["syncdocs"] },
-    "fssemantictagger": { "version": "0.13.0-alpha.8", "commands": ["fssemantictagger"] },
-    "paket": { "version": "10.3.1", "commands": ["paket"] }
+    "fssemantictagger": { "version": "0.13.0-alpha.8", "commands": ["fssemantictagger"] }
   }
 }

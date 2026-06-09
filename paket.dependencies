@@ -1,3 +1,0 @@
-// Pinned to the michaelglass/SqlHydra fork until SqlHydra.Query/Domain ship the
-// extensibility seam on NuGet (then this flips back to PackageReference).
-git https://github.com/michaelglass/sqlhydra.git 565f2def930ea99e44c7522f6ffe80d6adb145ca
