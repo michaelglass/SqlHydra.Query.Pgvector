@@ -14,7 +14,7 @@
     <PackageId>SqlHydra.Query.Pgvector</PackageId>
     <Version>0.1.0-alpha.1</Version>
     <Authors>Michael Glass</Authors>
-    <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators for `select` projections and `ORDER BY`. Runtime-only.</Description>
+    <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators for `select` projections and `ORDER BY`, plus a code-generation type mapping (PgvectorTypeMapping) that maps the PostgreSQL `vector` column to `Pgvector.Vector`.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
     <PackageTags>F# fsharp sql sqlhydra pgvector vector similarity postgresql</PackageTags>
@@ -27,10 +27,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
+    <Compile Include="TypeMapping.fs" />
   </ItemGroup>
   <ItemGroup>
-    <!-- Runtime-only: depends on the published extensibility seam in SqlHydra.Query >= 4.1.0-beta.1
-         (SqlHydraInfixOperator + InfixOperators + sqlFn + parameterized OrderByRaw + public tryGetOrderByColumn). -->
+    <!-- Depends on the published extensibility seam in SqlHydra.Query >= 4.1.0-beta.1
+         (SqlHydraInfixOperator + InfixOperators + sqlFn + parameterized OrderByRaw + public tryGetOrderByColumn).
+         The same package bundles the SqlHydra.Domain codegen types (lib/<tfm>/SqlHydra.Domain.dll)
+         that PgvectorTypeMapping (TypeMapping.fs) implements against — so this one reference is enough. -->
     <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.1" />
   </ItemGroup>
 </Project>
