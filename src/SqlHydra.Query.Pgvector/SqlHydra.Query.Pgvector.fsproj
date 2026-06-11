@@ -39,4 +39,16 @@
          satisfying version, so the floor must be beta.2 to keep that fix for downstream consumers. -->
     <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.2" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- Pin the FSharp.Core dependency floor explicitly, per target framework, to the
+         lowest version that supports each TFM (mirrors SqlHydra.Query's own floors). A
+         NuGet PackageReference version is a minimum (`>= X`), so a low floor keeps this
+         package compatible with a broad range of FSharp.Core. Without this, the F# SDK's
+         implicit FSharp.Core reference floats to whatever the build SDK bundles, producing
+         a non-deterministic (and needlessly high) floor that breaks consumers pinned lower. -->
+    <PackageReference Update="FSharp.Core" Version="6.0.7" Condition="'$(TargetFramework)' == 'netstandard2.0'" />
+    <PackageReference Update="FSharp.Core" Version="8.0.100" Condition="'$(TargetFramework)' == 'net8.0'" />
+    <PackageReference Update="FSharp.Core" Version="9.0.201" Condition="'$(TargetFramework)' == 'net9.0'" />
+    <PackageReference Update="FSharp.Core" Version="10.1.201" Condition="'$(TargetFramework)' == 'net10.0'" />
+  </ItemGroup>
 </Project>

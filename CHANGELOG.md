@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- fix: pin the `FSharp.Core` dependency floor explicitly per target framework
+  (netstandard2.0 `6.0.7`, net8 `8.0.100`, net9 `9.0.201`, net10 `10.1.201`) instead of
+  letting the F# SDK's implicit reference float to whatever the build SDK bundles. alpha.2
+  shipped a `>= 10.1.301` floor (whatever CI's SDK happened to bundle), which broke
+  consumers pinned to an older `FSharp.Core`. A `PackageReference` version is a minimum, so
+  these low floors keep the package compatible with a broad range of `FSharp.Core`.
+
 ## 0.1.0-alpha.2 - 2026-06-11
 
 - fix: require `SqlHydra.Query` >= 4.1.0-beta.2. beta.1 throws on aggregates over an
