@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- fix: require `SqlHydra.Query` >= 4.1.0-beta.2. beta.1 throws on aggregates over an
+  expression (e.g. `sumBy(caseWhen ...)`); beta.2 fixes it ([JordanMarr/SqlHydra#132]).
+  Because NuGet resolves transitive dependencies to the lowest satisfying version, the
+  dependency floor is bumped so consumers of this package pick up the fix.
+
+[JordanMarr/SqlHydra#132]: https://github.com/JordanMarr/SqlHydra/pull/132
+
+## 0.1.0-alpha.1 — 2026-06-09
+
 - feat: pgvector distance operators for `select` projections — `cosine_distance` (`<=>`),
   `l2_distance` (`<->`), and `inner_product_distance` (`<#>`), registered as SqlHydra infix
   operators so they emit the native pgvector operators inline.
