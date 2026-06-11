@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.3 - 2026-06-11
+
 - fix: pin the `FSharp.Core` dependency floor explicitly per target framework
   (netstandard2.0 `6.0.7`, net8 `8.0.100`, net9 `9.0.201`, net10 `10.1.201`) instead of
   letting the F# SDK's implicit reference float to whatever the build SDK bundles. alpha.2
