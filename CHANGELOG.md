@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.2 - 2026-06-11
+
 - fix: require `SqlHydra.Query` >= 4.1.0-beta.2. beta.1 throws on aggregates over an
   expression (e.g. `sumBy(caseWhen ...)`); beta.2 fixes it ([JordanMarr/SqlHydra#132]).
   Because NuGet resolves transitive dependencies to the lowest satisfying version, the
