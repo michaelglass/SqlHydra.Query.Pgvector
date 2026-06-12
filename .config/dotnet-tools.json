@@ -5,8 +5,8 @@
     "fantomas": { "version": "7.0.5", "commands": ["fantomas"] },
     "dotnet-fsharplint": { "version": "0.27.0", "commands": ["dotnet-fsharplint"] },
     "fsdocs-tool": { "version": "22.1.0", "commands": ["fsdocs"] },
-    "coverageratchet": { "version": "0.15.0-alpha.7", "commands": ["coverageratchet"] },
+    "coverageratchet": { "version": "0.15.0-alpha.8", "commands": ["coverageratchet"] },
     "syncdocs": { "version": "0.13.0-alpha.2", "commands": ["syncdocs"] },
-    "fssemantictagger": { "version": "0.13.0-alpha.12", "commands": ["fssemantictagger"] }
+    "fssemantictagger": { "version": "0.13.0-alpha.13", "commands": ["fssemantictagger"] }
   }
 }
