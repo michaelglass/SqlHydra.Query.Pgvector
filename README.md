@@ -64,6 +64,12 @@ Use these inside `select` to get a distance back as a column:
 | `l2_distance(a, b)` | L2 / Euclidean |
 | `inner_product_distance(a, b)` | Inner product |
 
+These emit the infix operator between **two columns** (e.g. `embedding <=> other_embedding`).
+Both arguments must be column references. Passing a literal `Pgvector.Vector` (or array) as
+the second argument is **not** supported in a `select` projection — SqlHydra fails fast at
+compile time rather than inlining the value. To rank rows against a query vector, use the
+`orderBy*Distance` operations below, which bind the vector as a parameter.
+
 Use these to order results from closest to farthest:
 
 | Operation | Distance |
@@ -72,7 +78,8 @@ Use these to order results from closest to farthest:
 | `orderByL2Distance col vec` | L2 / Euclidean |
 | `orderByInnerProductDistance col vec` | Inner product |
 
-The query vector is always sent as a query parameter, so it's safe to pass user input.
+In the `orderBy*Distance` path the query vector is always sent as a query parameter, so it's
+safe to pass user input.
 
 ## Generating types for `vector` columns
 
