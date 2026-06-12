@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- chore: bump dev tools — `coverageratchet` to `0.15.0-alpha.8` and `fssemantictagger` to
+  `0.13.0-alpha.13`. Dev-time only; no effect on the published package.
 - chore: add `--warnaserror` to the local `mise run ci` build line so it matches the GitHub
   Actions build and catches build/NuGet warnings (e.g. `NU1603`) locally.
 - fix: `orderBy*Distance` with a non-column selector now raises `InvalidOperationException`
