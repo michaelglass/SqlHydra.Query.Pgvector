@@ -184,10 +184,15 @@ let ``orderByInnerProductDistance binds vector as a parameter`` () =
 let ``orderByCosineDistance rejects a non-column selector`` () =
     // A distance expression (not a simple column) can't be resolved to a qualified
     // column, so the orderBy op must fail loudly rather than emit broken SQL.
-    raises<exn>
-        <@
+    let ex =
+        Assert.Throws<System.InvalidOperationException>(fun () ->
             select {
                 for p in product do
                     orderByCosineDistance (cosine_distance (p.standardcost, p.listprice)) (box [| 0.1f |])
             }
-        @>
+            |> ignore)
+
+    // The message names the simple-column-reference requirement and echoes the
+    // offending selector expression so the caller can find their mistake.
+    ex.Message.Contains "simple column reference" =! true
+    ex.Message.Contains "cosine_distance" =! true

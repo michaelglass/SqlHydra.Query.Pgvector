@@ -37,7 +37,14 @@ type SelectBuilder<'Selected, 'Mapped> with
                     OrderBy = state.Query.OrderBy @ [ OrderByRaw($"{fqCol} {operator} ?", [| vector |]) ] },
                 state.TableMappings
             )
-        | None -> failwith "pgvector distance ordering requires a simple column reference"
+        | None ->
+            raise (
+                InvalidOperationException(
+                    $"pgvector distance ordering requires a simple column reference, "
+                    + $"but the selector '{propertySelector}' did not resolve to a single column. "
+                    + "Order by a plain column property (e.g. `orderByCosineDistance i.embedding queryVector`)."
+                )
+            )
 
     /// ORDER BY column <=> @vector (pgvector cosine distance, ascending — closest first).
     [<CustomOperation("orderByCosineDistance", MaintainsVariableSpace = true)>]
