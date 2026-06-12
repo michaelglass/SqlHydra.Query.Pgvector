@@ -10,6 +10,59 @@ open SqlHydra.Query.Pgvector.Tests.production
 // pgvector operator registration auto-fires when the assembly loads via the
 // [<assembly: SqlHydraInfixOperator(...)>] attributes — no per-test setup needed.
 
+// A `select`-projection distance op is column-vs-column only: SqlHydra emits the
+// infix operator between the two column references. A *literal* second argument
+// (a `Pgvector.Vector` or a raw array) is NOT inlined as a SQL string literal and
+// is NOT silently parameter-bound — SqlHydra's emitter fails fast at compile time.
+// Only the `orderBy*Distance` path parameter-binds the query vector. These tests
+// pin that behaviour so the README's scope claim stays honest.
+
+[<Fact>]
+let ``cosine_distance literal Vector in select fails fast (not inlined, not bound)`` () =
+    let queryVec = Pgvector.Vector(System.ReadOnlyMemory([| 0.1f; 0.2f; 0.3f |]))
+
+    let ex =
+        Assert.ThrowsAny<exn>(fun () ->
+            select {
+                for p in product do
+                    select (cosine_distance (p.standardcost, queryVec))
+            }
+            |> toSql
+            |> ignore)
+
+    // The whole point: it does NOT inline the vector as a literal string.
+    ex.Message.Contains "Pgvector.Vector" =! true
+    ex.Message.Contains "literal" =! true
+
+[<Fact>]
+let ``cosine_distance literal array in select fails fast`` () =
+    let arr = [| 0.1f; 0.2f; 0.3f |]
+
+    let ex =
+        Assert.ThrowsAny<exn>(fun () ->
+            select {
+                for p in product do
+                    select (cosine_distance (p.standardcost, arr))
+            }
+            |> toSql
+            |> ignore)
+
+    ex.Message.Contains "literal" =! true
+
+[<Fact>]
+let ``cosine_distance column-vs-column in select emits infix with no parameters`` () =
+    let q =
+        select {
+            for p in product do
+                select (cosine_distance (p.standardcost, p.listprice))
+        }
+
+    let emitter = PostgresEmitter() :> ISqlEmitter
+    let compiled = q.CompileWith(emitter)
+    compiled.Sql.Contains "<=>" =! true
+    // Pure column-vs-column projection — no bound parameters.
+    compiled.Parameters.Length =! 0
+
 [<Fact>]
 let ``cosine_distance emits <=> infix in select`` () =
     let sql =

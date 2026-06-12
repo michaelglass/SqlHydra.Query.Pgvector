@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- docs: clarify that the `select`-projection distance functions (`cosine_distance` etc.) are
+  **column-vs-column only**. Passing a literal `Pgvector.Vector`/array as the second argument
+  is not supported in a `select` projection — SqlHydra fails fast at compile time rather than
+  inlining the value. The "query vector is always parameter-bound" guarantee applies to the
+  `orderBy*Distance` path. Pinned by regression tests.
+
 ## 0.1.0-alpha.3 - 2026-06-11
 
 - fix: pin the `FSharp.Core` dependency floor explicitly per target framework
