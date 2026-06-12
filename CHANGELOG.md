@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- chore: add `--warnaserror` to the local `mise run ci` build line so it matches the GitHub
+  Actions build and catches build/NuGet warnings (e.g. `NU1603`) locally.
 - fix: `orderBy*Distance` with a non-column selector now raises `InvalidOperationException`
   (was a bare `failwith`/`System.Exception`) and the message echoes the offending selector
   expression, so the caller can see which selector was rejected.

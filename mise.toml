@@ -18,7 +18,7 @@ description = "Run all CI checks (no auto-fix)"
 run = [
   "dotnet tool restore",
   "dotnet fantomas --check src/ tests/ examples/",
-  "dotnet build SqlHydra.Query.Pgvector.slnx",
+  "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror",
   "dotnet test --solution SqlHydra.Query.Pgvector.slnx",
 ]
 
