@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- test: add a real-Postgres integration test for `orderByInnerProductDistance`, asserting the
+  sign-inverted (`<#>` returns the negated inner product) nearest-first ordering against
+  axis-aligned seed vectors. Mirrors the existing cosine/L2 integration tests.
 - docs: clarify that the `select`-projection distance functions (`cosine_distance` etc.) are
   **column-vs-column only**. Passing a literal `Pgvector.Vector`/array as the second argument
   is not supported in a `select` projection — SqlHydra fails fast at compile time rather than

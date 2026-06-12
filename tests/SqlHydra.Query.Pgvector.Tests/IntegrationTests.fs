@@ -205,3 +205,32 @@ type IntegrationTests(fixture: PgvectorFixture) =
             // Row 3 ([0,0,1]) is nearest in L2 distance to [0.1,0.1,0.95].
             ids.Head =! 3
         }
+
+    [<Fact>]
+    [<Trait("Category", "Integration")>]
+    member _.``orderByInnerProductDistance returns the highest-inner-product row first``() =
+        task {
+            // pgvector's `<#>` returns the NEGATED inner product, so an ascending sort by it
+            // ranks the row with the LARGEST inner product (greatest similarity) first.
+            // Inner products with the axis-aligned rows just pick out each component:
+            //   row 1 [1,0,0] -> 0.2,  row 2 [0,1,0] -> 0.9,  row 3 [0,0,1] -> 0.3.
+            // Largest is row 2, so it must come back first.
+            let queryVec = Vector(System.ReadOnlyMemory([| 0.2f; 0.9f; 0.3f |]))
+
+            let q =
+                select {
+                    for i in ``public``.items do
+                        orderByInnerProductDistance i.embedding (box queryVec)
+                        select i.id
+                        take 3
+                }
+
+            let sql, ps = compile q
+            let! ids = executeReader sql ps (fun r -> r.GetInt32(0))
+
+            ids.Length =! 3
+            // Row 2 has the largest inner product with the query vector.
+            ids.Head =! 2
+            // Full sign-inverted ordering: row 2 (0.9) > row 3 (0.3) > row 1 (0.2).
+            ids =! [ 2; 3; 1 ]
+        }
