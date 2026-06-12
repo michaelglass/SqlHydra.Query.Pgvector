@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- fix: `orderBy*Distance` with a non-column selector now raises `InvalidOperationException`
+  (was a bare `failwith`/`System.Exception`) and the message echoes the offending selector
+  expression, so the caller can see which selector was rejected.
 - test: add a real-Postgres integration test for `orderByInnerProductDistance`, asserting the
   sign-inverted (`<#>` returns the negated inner product) nearest-first ordering against
   axis-aligned seed vectors. Mirrors the existing cosine/L2 integration tests.
