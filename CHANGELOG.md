@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.4 - 2026-06-12
+
 - chore: bump dev tools — `coverageratchet` to `0.15.0-alpha.8` and `fssemantictagger` to
   `0.13.0-alpha.13`. Dev-time only; no effect on the published package.
 - chore: add `--warnaserror` to the local `mise run ci` build line so it matches the GitHub
