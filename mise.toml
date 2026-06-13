@@ -30,6 +30,10 @@ run = "dotnet fantomas src/ tests/ examples/"
 description = "Run FSharpLint"
 run = "dotnet fsharplint lint SqlHydra.Query.Pgvector.slnx"
 
+[tasks.lint-project]
+description = "Run FsProjLint"
+run = "dotnet tool run fsprojlint"
+
 [tasks.docs]
 description = "Generate API documentation"
 run = "dotnet fsdocs build --parameters root /SqlHydra.Query.Pgvector/"
