@@ -17,6 +17,10 @@
     <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators for `select` projections and `ORDER BY`, plus a code-generation type mapping (PgvectorTypeMapping) that maps the PostgreSQL `vector` column to `Pgvector.Vector`.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <!-- Disable SourceLink when no .git directory exists (jj without colocated git) -->
+    <EnableSourceLink Condition="!Exists('$(MSBuildThisFileDirectory)../../.git')">false</EnableSourceLink>
     <PackageTags>F# fsharp sql sqlhydra pgvector vector similarity postgresql</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -24,6 +28,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
