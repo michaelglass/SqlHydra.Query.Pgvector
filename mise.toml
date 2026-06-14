@@ -11,7 +11,7 @@ run = "dotnet test --solution SqlHydra.Query.Pgvector.slnx"
 
 [tasks.check]
 description = "Run all checks with auto-fix"
-depends = ["format", "lint", "build", "test"]
+depends = ["format", "lint", "lint-project", "build", "test"]
 
 [tasks.ci]
 description = "Run all CI checks (no auto-fix)"
@@ -19,6 +19,7 @@ run = [
   "dotnet tool restore",
   "dotnet fantomas --check src/ tests/ examples/",
   "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror",
+  "dotnet tool run fsprojlint",
   "dotnet test --solution SqlHydra.Query.Pgvector.slnx",
 ]
 

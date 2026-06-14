@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- chore: package metadata for OSS readiness — add an MIT `LICENSE` file, `<RepositoryType>git</RepositoryType>`,
+  and a `Microsoft.SourceLink.GitHub` reference (with `PublishRepositoryUrl` and the standard
+  `EnableSourceLink` guard for non-colocated jj checkouts), so published packages carry source-debugging
+  metadata. Also wires `fsprojlint` into the local `check`/`ci` gate now that it passes (it was
+  runnable-but-non-gating because of these three missing items).
+
 ## 0.1.0-alpha.4 - 2026-06-12
 
 - chore: bump dev tools — `coverageratchet` to `0.15.0-alpha.8` and `fssemantictagger` to
