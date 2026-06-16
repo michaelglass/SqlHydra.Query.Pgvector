@@ -6,7 +6,7 @@
     "dotnet-fsharplint": { "version": "0.27.0", "commands": ["dotnet-fsharplint"] },
     "fsdocs-tool": { "version": "22.1.0", "commands": ["fsdocs"] },
     "coverageratchet": { "version": "0.15.0-alpha.8", "commands": ["coverageratchet"] },
-    "syncdocs": { "version": "0.13.0-alpha.2", "commands": ["syncdocs"] },
+    "syncdocs": { "version": "0.13.0-alpha.3", "commands": ["syncdocs"] },
     "fssemantictagger": { "version": "0.13.0-alpha.15", "commands": ["fssemantictagger"] },
     "fsprojlint": { "version": "0.10.0-alpha.11", "commands": ["fsprojlint"] }
   }
