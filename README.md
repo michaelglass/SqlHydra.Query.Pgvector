@@ -4,12 +4,15 @@
 Vector similarity search for [SqlHydra.Query](https://github.com/JordanMarr/SqlHydra),
 powered by [pgvector](https://github.com/pgvector/pgvector).
 
-Write `select` and `ORDER BY` queries that compare embeddings by **cosine**, **L2
-(Euclidean)**, or **inner-product** distance — all in strongly-typed F#, with the native
-pgvector operators (`<=>`, `<->`, `<#>`) generated for you. It also teaches the SqlHydra
-code generator about `vector` columns so they come through as `Pgvector.Vector` in your
-generated types.
+The goal is to let you write `select` and `ORDER BY` queries that compare embeddings by
+**cosine**, **L2 (Euclidean)**, or **inner-product** distance — all in strongly-typed F#,
+with the native pgvector operators (`<=>`, `<->`, `<#>`) generated for you. It also aims to
+teach the SqlHydra code generator about `vector` columns so they come through as
+`Pgvector.Vector` in your generated types.
 <!-- sync:intro:end -->
+
+> **Status:** early alpha, and substantially AI-written. Behavior and APIs may shift
+> between versions, so your mileage may vary. Issues and PRs are very welcome.
 
 ## Before you start
 
@@ -52,7 +55,7 @@ select {
 }
 ```
 
-That's it — no setup or registration call is required.
+That should be it — no setup or registration call needed.
 
 ### Available distance functions
 
@@ -91,7 +94,7 @@ package to the `[extensions]` section of your SqlHydra generator TOML:
 type_mappings = ["SqlHydra.Query.Pgvector"]
 ```
 
-Re-run `dotnet sqlhydra` and your `vector` columns will come through as `Pgvector.Vector`.
+Re-run `dotnet sqlhydra` and your `vector` columns should come through as `Pgvector.Vector`.
 
 ## Building this project
 
@@ -100,7 +103,7 @@ Tasks are driven by [`mise`](https://mise.jdx.dev/):
 ```bash
 mise run build    # build the solution
 mise run test     # run all tests (the integration tests need Docker)
-mise run ci       # the full gate: format check + build + test
+mise run ci       # the full gate: format check + build + lint + test
 mise run format   # format with Fantomas
 ```
 
