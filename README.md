@@ -36,24 +36,34 @@ Open the package alongside `SqlHydra.Query`, then use the distance functions in 
 `queryVector` below is your search embedding — the `Pgvector.Vector` you want to find the
 nearest rows to.
 
+<!-- sync:usage-opens:start src=examples/ExampleApp/Program.fs -->
 ```fsharp
 open SqlHydra.Query
 open SqlHydra.Query.Pgvector.PgvectorExtensions
 open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
-
-// Return each document together with how far it is from your query vector:
-select {
-    for d in documents do
-        select (cosine_distance (d.embedding, queryVector))
-}
-
-// Find the 10 closest documents (nearest-neighbour search):
-select {
-    for d in documents do
-        orderByCosineDistance d.embedding (box queryVector)
-        take 10
-}
 ```
+<!-- sync:usage-opens:end -->
+
+<!-- sync:usage-queries:start src=examples/ExampleApp/Program.fs -->
+```fsharp
+// Distance between two vector columns (e.g. how far each document is from a
+// cluster centroid). Both arguments must be column references:
+let centroidDistance =
+    select {
+        for d in documents do
+            select (cosine_distance (d.embedding, d.centroid))
+    }
+
+// Find the 10 closest documents to your query vector (nearest-neighbour search).
+// The query vector is bound as a parameter, so it's safe to pass user input:
+let nearest =
+    select {
+        for d in documents do
+            orderByCosineDistance d.embedding queryVector
+            take 10
+    }
+```
+<!-- sync:usage-queries:end -->
 
 That should be it — no setup or registration call needed.
 
