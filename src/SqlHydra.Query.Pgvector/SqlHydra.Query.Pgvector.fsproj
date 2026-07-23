@@ -19,8 +19,14 @@
     <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <!-- Disable SourceLink when no .git directory exists (jj without colocated git) -->
+    <!-- Disable SourceLink when no .git directory exists (jj without colocated git).
+         EnableSourceControlManagerQueries=false is required alongside EnableSourceLink=false:
+         without it the Microsoft.Build.Tasks.Git "InitializeSourceControlInformation" target
+         still runs and hard-fails ("Unable to locate repository") in a non-colocated jj
+         checkout. This guard only fires when .git is absent, so CI and colocated checkouts
+         (where .git exists) keep full SourceLink source-debugging metadata. -->
     <EnableSourceLink Condition="!Exists('$(MSBuildThisFileDirectory)../../.git')">false</EnableSourceLink>
+    <EnableSourceControlManagerQueries Condition="!Exists('$(MSBuildThisFileDirectory)../../.git')">false</EnableSourceControlManagerQueries>
     <PackageTags>F# fsharp sql sqlhydra pgvector vector similarity postgresql</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
@@ -30,7 +36,7 @@
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.300" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
@@ -44,7 +50,7 @@
          beta.2 is the floor: beta.1 throws on aggregates over an expression (e.g. sumBy(caseWhen ...));
          beta.2 fixes it (JordanMarr/SqlHydra#132). NuGet resolves transitive deps to the lowest
          satisfying version, so the floor must be beta.2 to keep that fix for downstream consumers. -->
-    <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.2" />
+    <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.3" />
   </ItemGroup>
   <ItemGroup>
     <!-- Pin the FSharp.Core dependency floor explicitly, per target framework, to the
