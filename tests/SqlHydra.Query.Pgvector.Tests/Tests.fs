@@ -7,15 +7,10 @@ open SqlHydra.Query.Pgvector.PgvectorExtensions
 open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
 open SqlHydra.Query.Pgvector.Tests.production
 
-// pgvector operator registration auto-fires when the assembly loads via the
-// [<assembly: SqlHydraInfixOperator(...)>] attributes — no per-test setup needed.
-
-// A `select`-projection distance op is column-vs-column only: SqlHydra emits the
-// infix operator between the two column references. A *literal* second argument
-// (a `Pgvector.Vector` or a raw array) is NOT inlined as a SQL string literal and
-// is NOT silently parameter-bound — SqlHydra's emitter fails fast at compile time.
-// Only the `orderBy*Distance` path parameter-binds the query vector. These tests
-// pin that behaviour so the README's scope claim stays honest.
+// A `select`-projection distance op is column-vs-column only. A literal second
+// argument (a `Pgvector.Vector` or a raw array) is neither inlined as a SQL literal
+// nor silently parameter-bound — SqlHydra's emitter fails fast. Only the
+// `orderBy*Distance` path binds the query vector as a parameter.
 
 [<Fact>]
 let ``cosine_distance literal Vector in select fails fast (not inlined, not bound)`` () =
@@ -30,7 +25,6 @@ let ``cosine_distance literal Vector in select fails fast (not inlined, not boun
             |> toSql
             |> ignore)
 
-    // The whole point: it does NOT inline the vector as a literal string.
     ex.Message.Contains "Pgvector.Vector" =! true
     ex.Message.Contains "literal" =! true
 
@@ -60,7 +54,6 @@ let ``cosine_distance column-vs-column in select emits infix with no parameters`
     let emitter = PostgresEmitter() :> ISqlEmitter
     let compiled = q.CompileWith(emitter)
     compiled.Sql.Contains "<=>" =! true
-    // Pure column-vs-column projection — no bound parameters.
     compiled.Parameters.Length =! 0
 
 [<Fact>]
@@ -122,8 +115,8 @@ let ``orderByCosineDistance binds vector as a parameter`` () =
 
     let emitter = PostgresEmitter() :> ISqlEmitter
     let compiled = q.CompileWith(emitter)
-    // SQL should reference a bound parameter instead of a bare ? placeholder.
     compiled.Sql.Contains "<=>" =! true
+    // No bare `?` left behind: the placeholder must have become a bound parameter.
     compiled.Sql.Contains " ?" =! false
     compiled.Parameters.Length =! 1
     let (_, value) = compiled.Parameters.[0]
@@ -182,8 +175,8 @@ let ``orderByInnerProductDistance binds vector as a parameter`` () =
 
 [<Fact>]
 let ``orderByCosineDistance rejects a non-column selector`` () =
-    // A distance expression (not a simple column) can't be resolved to a qualified
-    // column, so the orderBy op must fail loudly rather than emit broken SQL.
+    // A distance expression has no qualified column to order by, so the op must fail
+    // rather than emit broken SQL.
     let ex =
         Assert.Throws<System.InvalidOperationException>(fun () ->
             select {
@@ -192,7 +185,5 @@ let ``orderByCosineDistance rejects a non-column selector`` () =
             }
             |> ignore)
 
-    // The message names the simple-column-reference requirement and echoes the
-    // offending selector expression so the caller can find their mistake.
     ex.Message.Contains "simple column reference" =! true
     ex.Message.Contains "cosine_distance" =! true
