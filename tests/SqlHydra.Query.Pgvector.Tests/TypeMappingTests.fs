@@ -32,8 +32,7 @@ let private contextFor (providerTypeName: string) : TypeMappingContext =
 
 let private extended =
     let mapping = PgvectorTypeMapping() :> IExtendTypeMapping
-    // Base resolver that maps nothing — proves the extension supplies `vector` itself
-    // and delegates everything else.
+    // Base resolver maps nothing: proves the extension supplies `vector` and delegates the rest.
     mapping.Extend(fun _ -> None)
 
 [<Fact>]

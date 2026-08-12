@@ -4,7 +4,6 @@ open System
 open System.Linq.Expressions
 open SqlHydra.Query
 
-// Register pgvector infix operators via assembly-level attributes.
 // SqlHydra.Query discovers these the first time a query is compiled — no setup call needed.
 [<assembly: SqlHydraInfixOperator("cosine_distance", "<=>")>]
 [<assembly: SqlHydraInfixOperator("l2_distance", "<->")>]

@@ -6,10 +6,9 @@ open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
 
 open SqlHydra
 
-// In a real app this record + table value are produced by `dotnet sqlhydra`.
-// A `vector` column maps to `Pgvector.Vector` when you register the
-// `SqlHydra.Query.Pgvector` type-mapping extension in your TOML. Here we use
-// plain numeric stand-ins, since the emitter only cares about column references.
+// In a real app `dotnet sqlhydra` generates this record, mapping a `vector` column to
+// `Pgvector.Vector` once the type-mapping extension is registered in your TOML. Plain
+// numeric stand-ins work here because the emitter only cares about column references.
 [<CLIMutable>]
 type document =
     { [<ProviderDbType("Integer")>]
@@ -17,9 +16,9 @@ type document =
       [<ProviderDbType("Text")>]
       content: string
       [<ProviderDbType("Money")>]
-      embedding: decimal // stand-in for a `Pgvector.Vector` column
+      embedding: decimal
       [<ProviderDbType("Money")>]
-      centroid: decimal } // a second `Pgvector.Vector` column to compare against
+      centroid: decimal } // a second vector column, to compare each embedding against
 
 let documents = table<document>
 
@@ -27,13 +26,11 @@ let emitter = PostgresEmitter() :> ISqlEmitter
 
 let sqlOf (query: SelectQuery) = (query.CompileWith emitter).Sql
 
-// `queryVector` is your search embedding — the `Pgvector.Vector` you want to
-// find the nearest rows to. It's bound as a query parameter in the orderBy path.
+// Your search embedding — the `Pgvector.Vector` you want the nearest rows to.
 let queryVector = box [| 0.1f; 0.2f; 0.3f |]
 
-// --- README usage example (column-vs-column select + nearest-neighbour orderBy) --
-// This region is sourced verbatim into README.md via syncdocs `src=`, so it can
-// never drift from the real pgvector API.
+// The region below is sourced verbatim into README.md via syncdocs `src=`; edits here
+// (comments included) change the README.
 
 // sync:usage-queries:start
 // Distance between two vector columns (e.g. how far each document is from a
