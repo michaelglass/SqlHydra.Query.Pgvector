@@ -12,12 +12,8 @@ open SqlHydra.Query.Pgvector.PgvectorExtensions
 open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
 open Testcontainers.PostgreSql
 
-// ---------------------------------------------------------------------------
-// Schema standing in for SqlHydra-generated table types. The emitter only needs
-// the column NAMES to build SQL, so the CLR field types are incidental — we use
-// `Pgvector.Vector` for the embedding so the shape mirrors a real generated table.
-// We execute the compiled SQL via raw Npgsql (no generated HydraReader needed).
-// ---------------------------------------------------------------------------
+// Schema standing in for SqlHydra-generated table types; the compiled SQL runs through
+// raw Npgsql, so no generated HydraReader is needed.
 module ``public`` =
 
     [<CLIMutable>]
@@ -28,8 +24,7 @@ module ``public`` =
 
     let items = table<items>
 
-/// Real Postgres + pgvector via Testcontainers. Builds an NpgsqlDataSource with
-/// UseVector(), creates the `items` table, and seeds known embeddings.
+/// Real Postgres + pgvector via Testcontainers, seeded with known embeddings.
 type PgvectorFixture() =
     let container = PostgreSqlBuilder("pgvector/pgvector:pg17").Build()
 
@@ -62,7 +57,6 @@ type PgvectorFixture() =
                     do! conn.ReloadTypesAsync()
                     do! exec "CREATE TABLE items (id int primary key, embedding vector(3));"
 
-                    // Seed three rows with known embeddings along the axes.
                     let seed (id: int) (v: float32[]) =
                         task {
                             use cmd =
@@ -96,8 +90,8 @@ type IntegrationTests(fixture: PgvectorFixture) =
     let emitter = PostgresEmitter() :> ISqlEmitter
 
     /// Execute SqlHydra-compiled SQL + parameters against the container.
-    /// SqlHydra emits positional `?` placeholders; rewrite them to @pN, bind in order,
-    /// then project each row via `read`.
+    /// SqlHydra emits positional `?` placeholders; Npgsql needs named ones, so they are
+    /// rewritten to @pN and bound in order.
     let executeReader (sql: string) (parameters: (string * obj) list) (read: NpgsqlDataReader -> 'T) =
         task {
             use! conn = fixture.DataSource.OpenConnectionAsync()
@@ -143,7 +137,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
     [<Trait("Category", "Integration")>]
     member _.``cosine_distance to self is approximately zero``() =
         task {
-            // SELECT cosine_distance(embedding, embedding) FROM items  →  embedding <=> embedding
             let q =
                 select {
                     for i in ``public``.items do
@@ -156,7 +149,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
             distances.Length =! 3
 
             for d in distances do
-                // Distance of any vector to itself must be ~0.
                 test <@ abs d < 1e-5 @>
         }
 
@@ -179,7 +171,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
             let! ids = executeReader sql ps (fun r -> r.GetInt32(0))
 
             ids.Length =! 3
-            // Row 2 ([0,1,0]) is nearest in cosine distance to [0,0.9,0.1].
             ids.Head =! 2
         }
 
@@ -202,7 +193,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
             let! ids = executeReader sql ps (fun r -> r.GetInt32(0))
 
             ids.Length =! 3
-            // Row 3 ([0,0,1]) is nearest in L2 distance to [0.1,0.1,0.95].
             ids.Head =! 3
         }
 
@@ -214,7 +204,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
             // ranks the row with the LARGEST inner product (greatest similarity) first.
             // Inner products with the axis-aligned rows just pick out each component:
             //   row 1 [1,0,0] -> 0.2,  row 2 [0,1,0] -> 0.9,  row 3 [0,0,1] -> 0.3.
-            // Largest is row 2, so it must come back first.
             let queryVec = Vector(System.ReadOnlyMemory([| 0.2f; 0.9f; 0.3f |]))
 
             let q =
@@ -229,8 +218,6 @@ type IntegrationTests(fixture: PgvectorFixture) =
             let! ids = executeReader sql ps (fun r -> r.GetInt32(0))
 
             ids.Length =! 3
-            // Row 2 has the largest inner product with the query vector.
             ids.Head =! 2
-            // Full sign-inverted ordering: row 2 (0.9) > row 3 (0.3) > row 1 (0.2).
             ids =! [ 2; 3; 1 ]
         }
