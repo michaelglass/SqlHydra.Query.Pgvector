@@ -4,9 +4,8 @@ open SqlHydra
 open SqlHydra.Query
 
 /// Minimal self-contained schema standing in for SqlHydra-generated table types.
-/// Mirrors the generated shape: a `[<CLIMutable>]` record with `[<ProviderDbType>]`
-/// columns plus a `table<_>` value. We reuse plain numeric columns as distance-op
-/// operands — the emitter only cares about the column references, not the CLR types.
+/// Plain numeric columns serve as distance-op operands — the emitter only cares
+/// about the column references, not the CLR types.
 module production =
 
     [<CLIMutable>]
