@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.5 - 2026-08-19
+
 - chore: package metadata for OSS readiness — add an MIT `LICENSE` file, `<RepositoryType>git</RepositoryType>`,
   and a `Microsoft.SourceLink.GitHub` reference (with `PublishRepositoryUrl` and the standard
   `EnableSourceLink` guard for non-colocated jj checkouts), so published packages carry source-debugging
