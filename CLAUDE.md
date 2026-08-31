@@ -49,7 +49,7 @@ Tests in `tests/SqlHydra.Query.Pgvector.Tests/` use xUnit v3 + Unquote: `Tests.f
 
 ## Dependency on SqlHydra
 
-The package depends on a single PackageReference: **`SqlHydra.Query`** (the published NuGet package — `4.1.0-beta.1`+ contains the extensibility seam: `SqlHydraInfixOperator`, `InfixOperators`, parameterized `OrderByRaw`, and the public `tryGetOrderByColumn` helper). No Paket, no fork pin — a plain `dotnet build` works.
+The package depends on a single PackageReference: **`SqlHydra.Query`** (the published NuGet package — `4.1.1` contains the stable extensibility seam: `SqlHydraInfixOperator`, `InfixOperators`, parameterized `OrderByRaw`, and the public `tryGetOrderByColumn` helper). No Paket, no fork pin — a plain `dotnet build` works.
 
 The code-generation type mapping **ships** in this package (`TypeMapping.fs` → `PgvectorTypeMapping`). It's an `IExtendTypeMapping`, which needs the codegen types from **`SqlHydra.Domain`** — and those types ride along bundled inside the published `SqlHydra.Query` package (`lib/<tfm>/SqlHydra.Domain.dll`). So referencing `SqlHydra.Query` is enough to author and ship the mapping; there is no separate `SqlHydra.Domain` package to obtain out of band. Consumers register it via TOML (`[extensions] type_mappings = ["SqlHydra.Query.Pgvector"]`).
 
