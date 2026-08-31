@@ -46,10 +46,10 @@
     <!-- The only reference needed: this package carries both the extensibility seam the
          operators use and the SqlHydra.Domain codegen types TypeMapping.fs implements
          against (bundled as lib/<tfm>/SqlHydra.Domain.dll).
-         Must stay at or above beta.2: beta.1 throws on aggregates over an expression
-         (e.g. sumBy(caseWhen ...)). NuGet resolves transitive deps to the lowest satisfying
-         version, so a lower floor would hand downstream consumers the broken build. -->
-    <PackageReference Include="SqlHydra.Query" Version="4.1.0-beta.3" />
+         The stable 4.1.1 release contains the public extension API and the aggregate-expression
+         fixes this package relies on. NuGet resolves transitive dependencies to the lowest
+         satisfying version, so the floor must name that stable release explicitly. -->
+    <PackageReference Include="SqlHydra.Query" Version="4.1.1" />
   </ItemGroup>
   <ItemGroup>
     <!-- Per-TFM FSharp.Core floors, set to the lowest version each TFM supports (mirroring

@@ -17,11 +17,16 @@ depends = ["format", "lint", "lint-project", "build", "test"]
 description = "Run all CI checks (no auto-fix)"
 run = [
   "dotnet tool restore",
+  "dotnet fsi tests/verify-package-metadata.fsx",
   "dotnet fantomas --check src/ tests/ examples/",
   "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror",
   "dotnet tool run fsprojlint",
   "dotnet test --solution SqlHydra.Query.Pgvector.slnx",
 ]
+
+[tasks.test-package-metadata]
+description = "Verify package dependency metadata"
+run = "dotnet fsi tests/verify-package-metadata.fsx"
 
 [tasks.format]
 description = "Format with Fantomas"
