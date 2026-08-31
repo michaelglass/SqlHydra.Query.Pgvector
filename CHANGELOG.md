@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.6 - 2026-08-31
+
 - fix: require the stable `SqlHydra.Query` 4.1.1 public extensibility API instead of a 4.1.0 beta.
 
 ## 0.1.0-alpha.5 - 2026-08-19
