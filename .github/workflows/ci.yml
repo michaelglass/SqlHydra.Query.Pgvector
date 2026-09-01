@@ -20,3 +20,8 @@ jobs:
       contents: read
       checks: write
       pull-requests: write
+
+  lint-project:
+    uses: michaelglass/MichaelsWackyFsPackageTools/.github/workflows/michaels-wacky-lint-project.yml@main
+    permissions:
+      contents: read
