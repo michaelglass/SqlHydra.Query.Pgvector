@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- feat!: **require SqlHydra.Query 5.0.0.** SqlHydra 5.0 is a major release, so a consumer of
+  this package moves to it too rather than staying on 4.1.x. Nothing in this package's own
+  surface changes: it builds and its tests pass against 5.0.0 unmodified.
+- chore: the asserted `SqlHydra.Query` floor in `tests/verify-package-metadata.fsx` moves to
+  5.0.0 alongside the reference. Raising a floor is breaking, so the check requires it to be
+  deliberate in both places, and it caught this bump.
+- chore: bump Microsoft.SourceLink.GitHub to 10.0.401, which carries a Microsoft.Build.Tasks.Git
+  without the GHSA-23fw-v26w-5fgq advisory. Unrelated to the SqlHydra bump; the audit failed the
+  build on the old pin either way.
+
 ## 0.1.0-alpha.6 - 2026-08-31
 
 - fix: require the stable `SqlHydra.Query` 4.1.1 public extensibility API instead of a 4.1.0 beta.

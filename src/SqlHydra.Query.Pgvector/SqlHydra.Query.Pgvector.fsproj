@@ -36,7 +36,7 @@
     <None Include="../../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.301" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
@@ -49,7 +49,7 @@
          The stable 4.1.1 release contains the public extension API and the aggregate-expression
          fixes this package relies on. NuGet resolves transitive dependencies to the lowest
          satisfying version, so the floor must name that stable release explicitly. -->
-    <PackageReference Include="SqlHydra.Query" Version="4.1.1" />
+    <PackageReference Include="SqlHydra.Query" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <!-- Per-TFM FSharp.Core floors, set to the lowest version each TFM supports (mirroring
