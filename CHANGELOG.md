@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.7 - 2026-09-10
+
 - feat!: **require SqlHydra.Query 5.0.0.** SqlHydra 5.0 is a major release, so a consumer of
   this package moves to it too rather than staying on 4.1.x. Nothing in this package's own
   surface changes: it builds and its tests pass against 5.0.0 unmodified.
