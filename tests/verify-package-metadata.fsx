@@ -11,7 +11,7 @@ let sqlHydraQueryReference =
     |> Seq.find (fun reference -> reference.Attribute(XName.Get "Include").Value = "SqlHydra.Query")
 
 let actualVersion = sqlHydraQueryReference.Attribute(XName.Get "Version").Value
-let expectedVersion = "4.1.1"
+let expectedVersion = "5.0.0"
 
 if actualVersion <> expectedVersion then
     failwith $"Expected SqlHydra.Query dependency floor {expectedVersion}, but found {actualVersion}."
