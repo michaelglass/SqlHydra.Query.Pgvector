@@ -32,7 +32,7 @@ CI runs via the reusable `michaelglass/MichaelsWackyFsPackageTools` workflow (`.
 
 ## Version Control
 
-This repo is **colocated jj + git** (`jj git init --colocate`), like the other `~/Developer/opensource` F# packages. Use `jj` for day-to-day work; `git` still works for pushes/CI.
+This repo is **colocated jj + git** (`jj git init --colocate`), like the author's other F# packages. Use `jj` for day-to-day work; `git` still works for pushes/CI.
 
 - Describe work: `jj describe -m "..."`; new change: `jj new`.
 - The `main` bookmark tracks `origin/main` (`jj bookmark track main --remote=origin`).
