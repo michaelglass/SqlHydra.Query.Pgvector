@@ -94,6 +94,24 @@ Use these to order results from closest to farthest:
 In the `orderBy*Distance` path the query vector is always sent as a query parameter, so it's
 safe to pass user input.
 
+### Nullable and left-joined vector columns
+
+A `vector` column that can be NULL, either a nullable column or any column of a left-view
+joined with `leftJoin'`, works as it is with the `orderBy*Distance` operations: a row with a
+NULL vector has no distance, and PostgreSQL sorts it last.
+
+```fsharp
+select {
+    for d in documents do
+    leftJoin' c in LeftJoined.centroids
+    on' (Some d.clusterId = c.id)
+    orderByCosineDistance c.embedding queryVector
+}
+```
+
+The distance functions return `float`, so a distance read from a row where either vector is
+NULL fails when the row is read. Filter those rows out first, e.g. `where (c.embedding <> None)`.
+
 ## Generating types for `vector` columns
 
 So that SqlHydra generates a `Pgvector.Vector` property for each `vector` column, add this

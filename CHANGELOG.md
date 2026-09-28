@@ -5,6 +5,9 @@
 - feat!: **require SqlHydra.Query 5.1.0.** Its generator keeps a materialized-view column typed by a
   domain over `vector` (5.0.0 dropped it), and its query side can `leftJoin'` a generated left-view,
   whose `Option<Pgvector.Vector>` column the `orderBy*Distance` operations accept as is.
+- docs: say how a nullable or left-joined `vector` column behaves. `orderBy*Distance` sorts its
+  NULL rows last; a distance projected in `select` is a `float`, so those rows have to be filtered
+  out before it is read. Pinned by integration tests running `leftJoin'` onto a left-view.
 - test: `PGVECTOR_TEST_SERVER` runs the integration tests against a PostgreSQL server you already
   have, in a scratch database created and dropped around the run, instead of a Testcontainers
   container. Without it the tests start a container as before.

@@ -13,8 +13,8 @@ open SqlHydra.Query.Pgvector.PgvectorExtensions
 open type SqlHydra.Query.Pgvector.PgvectorExtensions.PgvectorFn
 open Testcontainers.PostgreSql
 
-// Schema standing in for SqlHydra-generated table types; the compiled SQL runs through
-// raw Npgsql, so no generated HydraReader is needed.
+// Schema standing in for SqlHydra-generated table types, in the shapes `PgvectorTypeMapping` and
+// the generator emit (an `Option` per nullable column, a left-view per table).
 module ``public`` =
 
     [<CLIMutable>]
@@ -24,6 +24,27 @@ module ``public`` =
           embedding: Vector }
 
     let items = table<items>
+
+    [<CLIMutable>]
+    type labels =
+        { [<ProviderDbType("Integer")>]
+          id: int
+          embedding: Vector }
+
+    let labels = table<labels>
+
+    module LeftJoined =
+        type private ``labels (base)`` = labels
+
+        [<CLIMutable; NoEquality; NoComparison>]
+        type labels =
+            { [<ProviderDbType("Integer")>]
+              id: Option<int>
+              embedding: Option<Vector> }
+
+            interface ILeftViewOf<``labels (base)``>
+
+        let labels = leftTable<``labels (base)``, labels>
 
 /// Real Postgres + pgvector, seeded with known embeddings.
 ///
@@ -53,6 +74,14 @@ type PgvectorFixture() =
     let mutable dataSource: NpgsqlDataSource = null
 
     member _.DataSource = dataSource
+
+    /// Runs a select through SqlHydra's own reader, so the rows are hydrated as generated code would be.
+    member _.Context =
+        ContextType.CreateTask(fun () ->
+            task {
+                let! conn = dataSource.OpenConnectionAsync()
+                return new QueryContext(conn, PostgresEmitter())
+            })
 
     interface IAsyncLifetime with
         member _.InitializeAsync() : ValueTask =
@@ -107,6 +136,10 @@ type PgvectorFixture() =
                     do! seed 2 [| 0.0f; 1.0f; 0.0f |]
                     do! seed 3 [| 0.0f; 0.0f; 1.0f |]
 
+                    do!
+                        exec
+                            "CREATE TABLE labels (id int primary key, embedding vector(3));
+                             INSERT INTO labels VALUES (1, '[1,0,0]'), (3, '[0,0,1]');"
                 }
             )
 
@@ -258,4 +291,42 @@ type IntegrationTests(fixture: PgvectorFixture) =
             ids.Length =! 3
             ids.Head =! 2
             ids =! [ 2; 3; 1 ]
+        }
+
+    [<Fact>]
+    [<Trait("Category", "Integration")>]
+    member _.``orderByCosineDistance orders by a left-view column, unmatched rows last``() =
+        task {
+            let queryVec = Vector(System.ReadOnlyMemory([| 0.0f; 0.1f; 0.9f |]))
+
+            let! rows =
+                selectTask fixture.Context {
+                    for i in ``public``.items do
+                        leftJoin' l in ``public``.LeftJoined.labels
+                        on' (Some i.id = l.id)
+                        orderByCosineDistance l.embedding (box queryVec)
+                        select (i.id, l.embedding)
+                }
+
+            (rows |> Seq.map (fun (id, e) -> id, e |> Option.map string) |> List.ofSeq)
+            =! [ 3, Some "[0,0,1]"; 1, Some "[1,0,0]"; 2, None ]
+        }
+
+    [<Fact>]
+    [<Trait("Category", "Integration")>]
+    member _.``a distance projected from a left-view column reads once unmatched rows are filtered out``() =
+        task {
+            // A distance is a `float`: an unmatched row's NULL distance could not be read into one.
+            let! rows =
+                selectTask fixture.Context {
+                    for i in ``public``.items do
+                        leftJoin' l in ``public``.LeftJoined.labels
+                        on' (Some i.id = l.id)
+                        where (l.embedding <> None)
+                        orderBy i.id
+                        select (i.id, cosine_distance (i.embedding, l.embedding))
+                }
+
+            (rows |> Seq.map (fun (id, d) -> id, round d) |> List.ofSeq)
+            =! [ 1, 0.0; 3, 0.0 ]
         }
