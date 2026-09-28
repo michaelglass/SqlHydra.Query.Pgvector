@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.8 - 2026-09-28
+
 - feat: the package puts its assembly in the build output of a library that references it, so
   `dotnet sqlhydra` finds the extension there. A library does not copy package assemblies to
   `bin/`, and the generator only looks there, so until now it stopped with "Could not find
