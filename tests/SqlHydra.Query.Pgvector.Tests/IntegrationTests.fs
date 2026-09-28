@@ -1,5 +1,6 @@
 module SqlHydra.Query.Pgvector.Tests.IntegrationTests
 
+open System
 open System.Text.RegularExpressions
 open System.Threading.Tasks
 open Npgsql
@@ -24,9 +25,30 @@ module ``public`` =
 
     let items = table<items>
 
-/// Real Postgres + pgvector via Testcontainers, seeded with known embeddings.
+/// Real Postgres + pgvector, seeded with known embeddings.
+///
+/// `PGVECTOR_TEST_SERVER`, when set, is a connection string to a running server with the pgvector
+/// extension available: the fixture creates a scratch database on it and drops it afterwards.
+/// Otherwise it starts a Testcontainers container, which needs Docker.
 type PgvectorFixture() =
-    let container = PostgreSqlBuilder("pgvector/pgvector:pg17").Build()
+    let server = Environment.GetEnvironmentVariable "PGVECTOR_TEST_SERVER"
+
+    let container =
+        if String.IsNullOrEmpty server then
+            Some(PostgreSqlBuilder("pgvector/pgvector:pg17").Build())
+        else
+            None
+
+    let scratchDatabase = $"pgvector_test_{Guid.NewGuid():N}"
+
+    let onServer (sql: string) =
+        task {
+            use conn = new NpgsqlConnection(server)
+            do! conn.OpenAsync()
+            use cmd = new NpgsqlCommand(sql, conn)
+            let! _ = cmd.ExecuteNonQueryAsync()
+            return ()
+        }
 
     let mutable dataSource: NpgsqlDataSource = null
 
@@ -36,9 +58,22 @@ type PgvectorFixture() =
         member _.InitializeAsync() : ValueTask =
             ValueTask(
                 task {
-                    do! container.StartAsync()
+                    let! connectionString =
+                        match container with
+                        | Some container ->
+                            task {
+                                do! container.StartAsync()
+                                return container.GetConnectionString()
+                            }
+                        | None ->
+                            task {
+                                do! onServer $"CREATE DATABASE {scratchDatabase}"
 
-                    let builder = NpgsqlDataSourceBuilder(container.GetConnectionString())
+                                return
+                                    NpgsqlConnectionStringBuilder(server, Database = scratchDatabase).ConnectionString
+                            }
+
+                    let builder = NpgsqlDataSourceBuilder(connectionString)
                     builder.UseVector() |> ignore
                     dataSource <- builder.Build()
 
@@ -71,6 +106,7 @@ type PgvectorFixture() =
                     do! seed 1 [| 1.0f; 0.0f; 0.0f |]
                     do! seed 2 [| 0.0f; 1.0f; 0.0f |]
                     do! seed 3 [| 0.0f; 0.0f; 1.0f |]
+
                 }
             )
 
@@ -80,7 +116,9 @@ type PgvectorFixture() =
                     if not (isNull dataSource) then
                         do! dataSource.DisposeAsync()
 
-                    do! container.DisposeAsync().AsTask()
+                    match container with
+                    | Some container -> do! container.DisposeAsync().AsTask()
+                    | None -> do! onServer $"DROP DATABASE IF EXISTS {scratchDatabase} WITH (FORCE)"
                 }
             )
 
@@ -89,7 +127,7 @@ type IntegrationTests(fixture: PgvectorFixture) =
 
     let emitter = PostgresEmitter() :> ISqlEmitter
 
-    /// Execute SqlHydra-compiled SQL + parameters against the container.
+    /// Execute SqlHydra-compiled SQL + parameters against the database.
     /// SqlHydra emits positional `?` placeholders; Npgsql needs named ones, so they are
     /// rewritten to @pN and bound in order.
     let executeReader (sql: string) (parameters: (string * obj) list) (read: NpgsqlDataReader -> 'T) =

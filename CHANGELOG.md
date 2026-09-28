@@ -5,6 +5,9 @@
 - feat!: **require SqlHydra.Query 5.1.0.** Its generator keeps a materialized-view column typed by a
   domain over `vector` (5.0.0 dropped it), and its query side can `leftJoin'` a generated left-view,
   whose `Option<Pgvector.Vector>` column the `orderBy*Distance` operations accept as is.
+- test: `PGVECTOR_TEST_SERVER` runs the integration tests against a PostgreSQL server you already
+  have, in a scratch database created and dropped around the run, instead of a Testcontainers
+  container. Without it the tests start a container as before.
   The asserted floor in `tests/verify-package-metadata.fsx` moves with it.
 
 ## 0.1.0-alpha.7 - 2026-09-10

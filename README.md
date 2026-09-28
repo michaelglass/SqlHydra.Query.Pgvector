@@ -118,8 +118,16 @@ mise run format   # format with Fantomas
 ```
 
 The integration tests spin up a real PostgreSQL + pgvector container via
-[Testcontainers](https://testcontainers.com/), so they need a running Docker daemon. To
-run only the in-process unit tests without Docker:
+[Testcontainers](https://testcontainers.com/), so they need a running Docker daemon. To run
+them against a PostgreSQL server you already have instead, point `PGVECTOR_TEST_SERVER` at it
+with a connection string. The server needs the pgvector extension available and a role that
+can create databases: the tests create a scratch database there and drop it afterwards.
+
+```bash
+PGVECTOR_TEST_SERVER="Host=localhost;Port=5433;Username=postgres;Database=postgres" mise run test
+```
+
+To run only the in-process unit tests, with no database at all:
 
 ```bash
 dotnet test --solution SqlHydra.Query.Pgvector.slnx \
