@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- feat: the package puts its assembly in the build output of a library that references it, so
+  `dotnet sqlhydra` finds the extension there. A library does not copy package assemblies to
+  `bin/`, and the generator only looks there, so until now it stopped with "Could not find
+  'SqlHydra.Query.Pgvector.dll' in the build output" unless the consumer set
+  `CopyLocalLockFileAssemblies` (copying every package) or copied the file itself. A
+  `build/SqlHydra.Query.Pgvector.targets` copies this one assembly and nothing else; opt out with
+  `ExcludeAssets="build"`. A test packs the package and builds a library against it.
 - feat: `PgvectorTypeMapping` maps `halfvec` to `Pgvector.HalfVector`, `sparsevec` to
   `Pgvector.SparseVector`, and an array of any pgvector type to an array of its CLR type. Before,
   the generator left these columns out of the generated record without a word.

@@ -40,12 +40,13 @@ This repo is **colocated jj + git** (`jj git init --colocate`), like the author'
 
 ## Architecture
 
-Two source files in `src/SqlHydra.Query.Pgvector/`:
+Two source files and one MSBuild file in `src/SqlHydra.Query.Pgvector/`:
 
 - **`PgvectorExtensions.fs`** — the runtime operators. A `PgvectorFn` type whose `*_distance` members are `sqlFn` marker stubs (the visitor matches the call-site shape and emits the infix operator; the body is never invoked). Assembly-level `[<assembly: SqlHydraInfixOperator(...)>]` attributes register the three operators, auto-discovered on first query compile. A `SelectBuilder` type-extension adds the `orderBy*Distance` CE ops, which resolve the column via the public `tryGetOrderByColumn` helper and append an `OrderByRaw` fragment with the vector as a bound parameter.
 - **`TypeMapping.fs`** — `PgvectorTypeMapping`, an `IExtendTypeMapping` (from the `SqlHydra.Domain` types bundled in `SqlHydra.Query`) that maps `vector`/`halfvec`/`sparsevec` (schema-qualified or not, and arrays of them) to `Pgvector.Vector`/`HalfVector`/`SparseVector` during code generation, with `ProviderDbType = None` (see "Dependency on SqlHydra").
+- **`build/SqlHydra.Query.Pgvector.targets`** — packed to `build/`, so it runs in every project that references the package. In a library (`CopyLocalLockFileAssemblies` false) it adds this package's runtime assembly to `ReferenceCopyLocalPaths`, so `dotnet sqlhydra`, which loads extensions from the project's `bin/`, finds it.
 
-Tests in `tests/SqlHydra.Query.Pgvector.Tests/` use xUnit v3 + Unquote: `Tests.fs` (operator/orderBy SQL emission via `toSql`), `TypeMappingTests.fs` (`PgvectorTypeMapping` codegen mapping — each pgvector type, arrays, schema-qualified names, case-insensitivity, base-resolver delegation, and that every mapped CLR type exists in `Pgvector`), `IntegrationTests.fs` (real Postgres + pgvector via Testcontainers, or a scratch database on the server `PGVECTOR_TEST_SERVER` names — executes the compiled SQL against `pgvector/pgvector:pg17` and asserts actual distance/nearest-neighbour results), `Schema.fs` (a minimal hand-rolled table for `toSql`-based assertions).
+Tests in `tests/SqlHydra.Query.Pgvector.Tests/` use xUnit v3 + Unquote: `Tests.fs` (operator/orderBy SQL emission via `toSql`), `TypeMappingTests.fs` (`PgvectorTypeMapping` codegen mapping — each pgvector type, arrays, schema-qualified names, case-insensitivity, base-resolver delegation, and that every mapped CLR type exists in `Pgvector`), `IntegrationTests.fs` (real Postgres + pgvector via Testcontainers, or a scratch database on the server `PGVECTOR_TEST_SERVER` names — executes the compiled SQL against `pgvector/pgvector:pg17` and asserts actual distance/nearest-neighbour results), `PackagingTests.fs` (packs a copy of the package and builds a library against it, asserting the extension assembly lands in `bin/`), `Schema.fs` (a minimal hand-rolled table for `toSql`-based assertions).
 
 ## Dependency on SqlHydra
 

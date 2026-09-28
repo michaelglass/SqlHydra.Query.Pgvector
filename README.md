@@ -114,7 +114,7 @@ NULL fails when the row is read. Filter those rows out first, e.g. `where (c.emb
 
 ## Generating types for `vector` columns
 
-So that SqlHydra generates a `Pgvector.Vector` property for each `vector` column, add this
+So that SqlHydra generates a `Pgvector` property for each pgvector column, add this
 package to the `[extensions]` section of your SqlHydra generator TOML:
 
 ```toml
@@ -122,7 +122,12 @@ package to the `[extensions]` section of your SqlHydra generator TOML:
 type_mappings = ["SqlHydra.Query.Pgvector"]
 ```
 
-Re-run `dotnet sqlhydra` and your pgvector columns come through as `Pgvector` types:
+Build the project, then re-run `dotnet sqlhydra`. The generator loads the extension from your
+project's `bin/`, and this package puts its assembly there even when your project is a library,
+which does not otherwise copy package assemblies into its output. There is no need for
+`CopyLocalLockFileAssemblies` or a copy step of your own.
+
+Your pgvector columns come through as `Pgvector` types:
 
 | PostgreSQL | Generated property |
 |---|---|

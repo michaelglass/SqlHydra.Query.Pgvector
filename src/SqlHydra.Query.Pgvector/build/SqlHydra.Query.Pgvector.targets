@@ -1,0 +1,19 @@
+<Project>
+  <!--
+    `dotnet sqlhydra` loads a `[extensions] type_mappings` entry from the referencing project's
+    bin/ directory. A library does not copy package assemblies there (CopyLocalLockFileAssemblies
+    defaults to false for one), so without this target the generator stops with "Could not find
+    'SqlHydra.Query.Pgvector.dll' in the build output". This copies this package's own runtime
+    assembly, and nothing else, so the library's output stays as small as it was.
+
+    Opt out with ExcludeAssets="build" on the PackageReference.
+  -->
+  <Target Name="SqlHydraQueryPgvectorCopyLocal"
+          AfterTargets="ResolveLockFileCopyLocalFiles"
+          Condition="'$(CopyLocalLockFileAssemblies)' != 'true'">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="@(RuntimeCopyLocalItems)"
+                               Condition="'%(RuntimeCopyLocalItems.NuGetPackageId)' == 'SqlHydra.Query.Pgvector'" />
+    </ItemGroup>
+  </Target>
+</Project>
