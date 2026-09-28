@@ -46,10 +46,11 @@
     <!-- The only reference needed: this package carries both the extensibility seam the
          operators use and the SqlHydra.Domain codegen types TypeMapping.fs implements
          against (bundled as lib/<tfm>/SqlHydra.Domain.dll).
-         The stable 4.1.1 release contains the public extension API and the aggregate-expression
-         fixes this package relies on. NuGet resolves transitive dependencies to the lowest
-         satisfying version, so the floor must name that stable release explicitly. -->
-    <PackageReference Include="SqlHydra.Query" Version="5.0.0" />
+         5.1.0 is the first release whose generator keeps a materialized-view column typed by a
+         domain over `vector`, and whose query side has `leftJoin'` onto a generated left-view.
+         NuGet resolves transitive dependencies to the lowest satisfying version, so the floor
+         must name that release explicitly. -->
+    <PackageReference Include="SqlHydra.Query" Version="5.1.0" />
   </ItemGroup>
   <ItemGroup>
     <!-- Per-TFM FSharp.Core floors, set to the lowest version each TFM supports (mirroring

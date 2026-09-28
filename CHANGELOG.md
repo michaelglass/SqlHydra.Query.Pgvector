@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- feat!: **require SqlHydra.Query 5.1.0.** Its generator keeps a materialized-view column typed by a
+  domain over `vector` (5.0.0 dropped it), and its query side can `leftJoin'` a generated left-view,
+  whose `Option<Pgvector.Vector>` column the `orderBy*Distance` operations accept as is.
+  The asserted floor in `tests/verify-package-metadata.fsx` moves with it.
+
 ## 0.1.0-alpha.7 - 2026-09-10
 
 - feat!: **require SqlHydra.Query 5.0.0.** SqlHydra 5.0 is a major release, so a consumer of
