@@ -26,6 +26,16 @@ module ``public`` =
     let items = table<items>
 
     [<CLIMutable>]
+    type shapes =
+        { [<ProviderDbType("Integer")>]
+          id: int
+          half: Option<HalfVector>
+          sparse: Option<SparseVector>
+          many: Option<Vector[]> }
+
+    let shapes = table<shapes>
+
+    [<CLIMutable>]
     type labels =
         { [<ProviderDbType("Integer")>]
           id: int
@@ -140,6 +150,13 @@ type PgvectorFixture() =
                         exec
                             "CREATE TABLE labels (id int primary key, embedding vector(3));
                              INSERT INTO labels VALUES (1, '[1,0,0]'), (3, '[0,0,1]');"
+
+                    do!
+                        exec
+                            "CREATE TABLE shapes (id int primary key, half halfvec(3), sparse sparsevec(5), many vector(3)[]);
+                             INSERT INTO shapes VALUES
+                                 (1, '[1,0,0]', '{1:1,4:2}/5', ARRAY['[1,0,0]', '[0,1,0]']::vector[]),
+                                 (2, NULL, NULL, NULL);"
                 }
             )
 
@@ -329,4 +346,25 @@ type IntegrationTests(fixture: PgvectorFixture) =
 
             (rows |> Seq.map (fun (id, d) -> id, round d) |> List.ofSeq)
             =! [ 1, 0.0; 3, 0.0 ]
+        }
+
+    [<Fact>]
+    [<Trait("Category", "Integration")>]
+    member _.``halfvec, sparsevec and vector[] columns hydrate as their mapped CLR types``() =
+        task {
+            let! rows =
+                selectTask fixture.Context {
+                    for s in ``public``.shapes do
+                        orderBy s.id
+                }
+
+            let show (row: ``public``.shapes) =
+                row.id,
+                row.half |> Option.map string,
+                row.sparse |> Option.map string,
+                row.many |> Option.map (Array.map string >> List.ofArray)
+
+            (rows |> Seq.map show |> List.ofSeq)
+            =! [ 1, Some "[1,0,0]", Some "{1:1,4:2}/5", Some [ "[1,0,0]"; "[0,1,0]" ]
+                 2, None, None, None ]
         }

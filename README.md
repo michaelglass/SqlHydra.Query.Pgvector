@@ -122,7 +122,19 @@ package to the `[extensions]` section of your SqlHydra generator TOML:
 type_mappings = ["SqlHydra.Query.Pgvector"]
 ```
 
-Re-run `dotnet sqlhydra` and your `vector` columns should come through as `Pgvector.Vector`.
+Re-run `dotnet sqlhydra` and your pgvector columns come through as `Pgvector` types:
+
+| PostgreSQL | Generated property |
+|---|---|
+| `vector` | `Pgvector.Vector` |
+| `halfvec` | `Pgvector.HalfVector` |
+| `sparsevec` | `Pgvector.SparseVector` |
+| `vector[]` (and `halfvec[]`, `sparsevec[]`) | `Pgvector.Vector[]` (and so on) |
+
+That holds for tables, views and materialized views, for a column typed by a domain over one of
+these, and when the extension lives in a schema that is not on the search path (such as
+`CREATE EXTENSION vector SCHEMA extensions`). To read and write these values, register the
+pgvector types with Npgsql (`dataSourceBuilder.UseVector()`).
 
 ## Building this project
 

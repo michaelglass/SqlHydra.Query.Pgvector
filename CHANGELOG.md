@@ -2,16 +2,23 @@
 
 ## Unreleased
 
+- feat: `PgvectorTypeMapping` maps `halfvec` to `Pgvector.HalfVector`, `sparsevec` to
+  `Pgvector.SparseVector`, and an array of any pgvector type to an array of its CLR type. Before,
+  the generator left these columns out of the generated record without a word.
+- fix: `PgvectorTypeMapping` recognises a schema-qualified type name. PostgreSQL spells the type
+  `extensions.vector` when the extension was created in a schema that is not on the generator's
+  search path, and the mapping only matched a bare `vector`, so every such column was dropped from
+  the generated record.
 - feat!: **require SqlHydra.Query 5.1.0.** Its generator keeps a materialized-view column typed by a
   domain over `vector` (5.0.0 dropped it), and its query side can `leftJoin'` a generated left-view,
   whose `Option<Pgvector.Vector>` column the `orderBy*Distance` operations accept as is.
+  The asserted floor in `tests/verify-package-metadata.fsx` moves with it.
 - docs: say how a nullable or left-joined `vector` column behaves. `orderBy*Distance` sorts its
   NULL rows last; a distance projected in `select` is a `float`, so those rows have to be filtered
   out before it is read. Pinned by integration tests running `leftJoin'` onto a left-view.
 - test: `PGVECTOR_TEST_SERVER` runs the integration tests against a PostgreSQL server you already
   have, in a scratch database created and dropped around the run, instead of a Testcontainers
   container. Without it the tests start a container as before.
-  The asserted floor in `tests/verify-package-metadata.fsx` moves with it.
 
 ## 0.1.0-alpha.7 - 2026-09-10
 
