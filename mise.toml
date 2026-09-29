@@ -21,7 +21,10 @@ run = [
   "dotnet fantomas --check src/ tests/ examples/",
   "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror",
   "dotnet tool run fsprojlint",
-  "dotnet test --solution SqlHydra.Query.Pgvector.slnx",
+  # Coverage the way GitHub CI runs it: the directory name is the test project
+  # folder minus ".Tests", and the ratchet config is coverage-ratchet-<name>.json.
+  'dotnet test --project tests/SqlHydra.Query.Pgvector.Tests/SqlHydra.Query.Pgvector.Tests.fsproj --coverage --coverage-output-format cobertura --coverage-output "$PWD/coverage/SqlHydra.Query.Pgvector/coverage.cobertura.xml"',
+  "(cd coverage/SqlHydra.Query.Pgvector && dotnet tool run coverageratchet check ../../coverage-ratchet-SqlHydra.Query.Pgvector.json)",
 ]
 
 [tasks.test-package-metadata]
