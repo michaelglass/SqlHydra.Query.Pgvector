@@ -14,17 +14,25 @@ description = "Run all checks with auto-fix"
 depends = ["format", "lint", "lint-project", "build", "test"]
 
 [tasks.ci]
-description = "Run all CI checks (no auto-fix)"
+description = "Run every check CI runs, in CI's order, with no auto-fix"
+# Keep this in step with .github/workflows/ci.yml. A local `ci` that runs a
+# different set from real CI can go green on work CI will reject — which is the
+# whole reason fsprojlint is here as well as a job in the workflow. The examples
+# are in the solution, so the build line covers CI's "Build examples" step.
 run = [
   "dotnet tool restore",
   "dotnet fsi tests/verify-package-metadata.fsx",
+  "dotnet restore",
   "dotnet fantomas --check src/ tests/ examples/",
-  "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror",
-  "dotnet tool run fsprojlint",
+  "dotnet tool run syncdocs check",
+  "dotnet build SqlHydra.Query.Pgvector.slnx --warnaserror --no-restore",
+  "dotnet fsharplint lint SqlHydra.Query.Pgvector.slnx",
+  "dotnet fsdocs build --output output/docs --clean",
   # Coverage the way GitHub CI runs it: the directory name is the test project
   # folder minus ".Tests", and the ratchet config is coverage-ratchet-<name>.json.
   'dotnet test --project tests/SqlHydra.Query.Pgvector.Tests/SqlHydra.Query.Pgvector.Tests.fsproj --coverage --coverage-output-format cobertura --coverage-output "$PWD/coverage/SqlHydra.Query.Pgvector/coverage.cobertura.xml"',
   "(cd coverage/SqlHydra.Query.Pgvector && dotnet tool run coverageratchet check ../../coverage-ratchet-SqlHydra.Query.Pgvector.json)",
+  "dotnet tool run fsprojlint",
 ]
 
 [tasks.test-package-metadata]
