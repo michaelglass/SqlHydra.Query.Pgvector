@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- fix: **require SqlHydra.Query 5.1.1.** On 5.1.0 the host scanned loaded assemblies for
+  `SqlHydraInfixOperator` before subscribing to `AssemblyLoad`, so when this package's assembly
+  loaded during that first scan, `cosine_distance`, `l2_distance` and `inner_product_distance`
+  could go unregistered and a `select` projection using them failed to translate. 5.1.1 subscribes
+  first (SqlHydra #174). Consumers on 5.1.0 move to 5.1.1; nothing else changes.
+- chore(deps): Microsoft.SourceLink.GitHub 10.0.402; tests on Testcontainers.PostgreSql 4.16.0 and
+  Microsoft.Testing.Extensions.CodeCoverage 18.12.0.
+
 ## 0.1.0-alpha.8 - 2026-09-28
 
 - feat: the package puts its assembly in the build output of a library that references it, so

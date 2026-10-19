@@ -37,7 +37,7 @@
     <None Include="build/SqlHydra.Query.Pgvector.targets" Pack="true" PackagePath="build/" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.401" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.402" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="PgvectorExtensions.fs" />
@@ -50,8 +50,10 @@
          5.1.0 is the first release whose generator keeps a materialized-view column typed by a
          domain over `vector`, and whose query side has `leftJoin'` onto a generated left-view.
          NuGet resolves transitive dependencies to the lowest satisfying version, so the floor
-         must name that release explicitly. -->
-    <PackageReference Include="SqlHydra.Query" Version="5.1.0" />
+         must name that release explicitly. 5.1.1 registers an infix operator declared by an
+         extension assembly that loads while SqlHydra.Query is scanning for them (SqlHydra #174);
+         on 5.1.0 such an operator could be missed. -->
+    <PackageReference Include="SqlHydra.Query" Version="5.1.1" />
   </ItemGroup>
   <ItemGroup>
     <!-- Per-TFM FSharp.Core floors, set to the lowest version each TFM supports (mirroring
