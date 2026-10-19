@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.9 - 2026-10-19
+
 - fix: **require SqlHydra.Query 5.1.1.** On 5.1.0 the host scanned loaded assemblies for
   `SqlHydraInfixOperator` before subscribing to `AssemblyLoad`, so when this package's assembly
   loaded during that first scan, `cosine_distance`, `l2_distance` and `inner_product_distance`
