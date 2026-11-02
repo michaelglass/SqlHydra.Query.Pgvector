@@ -171,4 +171,4 @@ dotnet test --solution SqlHydra.Query.Pgvector.slnx \
 
 ## License
 
-MIT
+[MPL-2.0](https://mozilla.org/MPL/2.0/)
