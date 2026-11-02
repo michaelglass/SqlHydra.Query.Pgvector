@@ -15,7 +15,7 @@
     <Version>0.1.0-alpha.9</Version>
     <Authors>Michael Glass</Authors>
     <Description>pgvector distance functions for SqlHydra.Query — cosine, L2, and inner product distance operators for `select` projections and `ORDER BY`, plus a code-generation type mapping (PgvectorTypeMapping) that maps the PostgreSQL `vector`, `halfvec` and `sparsevec` columns to their `Pgvector` types.</Description>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/michaelglass/SqlHydra.Query.Pgvector</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
